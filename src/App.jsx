@@ -889,7 +889,7 @@ function UserDetail({ user, onBack }) {
 
               <SectionHeader>Score Dimensions — Tap to expand</SectionHeader>
 
-              {SCORE_DIMS.map(dim=>{
+                            {SCORE_DIMS.map(dim=>{
                 const score=userScores[dim.id]||0;
                 const isExp=expandedDim===dim.id;
                 const isHigh=score>=15;
