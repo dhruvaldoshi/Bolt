@@ -16,6 +16,7 @@ jobs:
           c = c.replace(/[\u2018\u2019]/g, \"'\");
           c = c.replace(/[\u201c\u201d]/g, '\"');
           c = c.replace(/\u2026/g, '...');
+          c = c.replace(/\`{2,}/g, '');
           fs.writeFileSync('src/App.jsx', c);
           console.log('Done');
           "
@@ -24,5 +25,5 @@ jobs:
           git config user.email "fix@bolt.com"
           git config user.name "Bolt Fix"
           git add src/App.jsx
-          git diff --staged --quiet || git commit -m "fix: correct quotes in App.jsx"
+          git diff --staged --quiet || git commit -m "fix: remove backtick artifacts"
           git push
