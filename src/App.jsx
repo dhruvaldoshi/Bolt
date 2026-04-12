@@ -563,11 +563,11 @@ return (
 ))}
 </div>
 
-```
+
   {/* Search + filter */}
   <div style={{ marginBottom:14 }}>
     <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by mobile, name, niche, or idea..."
-``````
+
       style={{ width:"100%",background:C.surface,border:`1px solid ${C.border2}`,borderRadius:10,padding:"11px 14px",color:C.text,fontSize:13,fontFamily:F.sans,outline:"none",marginBottom:10 }} />
     <div style={{ display:"flex",gap:6,flexWrap:"wrap" }}>
       {["all","champions","converts","browsers","at_risk"].map(seg => (
@@ -625,7 +625,7 @@ return (
     ))}
   </div>
 </div>
-```
+
 
 );
 }
@@ -663,7 +663,7 @@ return (
 {/* Back button */}
 <button onClick={onBack} style={{ background:"none",border:`1px solid ${C.border2}`,borderRadius:8,padding:"7px 14px",color:C.dim,cursor:"pointer",fontFamily:F.sans,fontSize:12,marginBottom:20 }}>← All Users</button>
 
-```
+
   {/* User header */}
   <div style={{ background:C.surface,border:`1px solid ${segColor}44`,borderRadius:14,padding:"18px",marginBottom:16 }}>
     <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14 }}>
@@ -750,7 +750,7 @@ return (
     </div>
   </div>
 </div>
-```
+
 
 );
 }
@@ -788,7 +788,7 @@ return (
 </div>
 </div>
 
-```
+
     <div style={{ flex:1,overflowY:"auto",padding:"20px" }}>
 
       {/* - OVERVIEW - */}
@@ -1142,7 +1142,7 @@ return (
 
   {selectedNiche&&<NicheSheet niche={selectedNiche} onClose={()=>setSelectedNiche(null)} isUserNiche={selectedNiche.id==="digital_marketing"}/>}
 </div>
-```
+
 
 );
 }
@@ -1209,14 +1209,14 @@ else{ Analytics.track("quiz_completed",{mobile}); go(V.GATE); }
 const Phone=({children,noDots})=>(
 <div style={{ minHeight:"100vh",background:C.bg,display:"flex",justifyContent:"center" }}>
 
-```
+
   <style>{`*{box-sizing:border-box;-webkit-tap-highlight-color:transparent} @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}} input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none} ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:${C.border2}}`}</style>
   <div style={{ width:"100%",maxWidth:390,minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column" }}>
     {!noDots&&<Dots view={view}/>}
     <div ref={topRef} style={{ flex:1,overflowY:"auto" }}>{children}</div>
   </div>
 </div>
-```
+
 
 );
 const Pad=({children})=><div style={{ padding:"0 22px" }}>{children}</div>;
@@ -1226,12 +1226,12 @@ if(q.type==="choice") return <div style={{display:"flex",flexDirection:"column",
 if(q.type==="choice_d") return <div style={{display:"flex",flexDirection:"column",gap:10}}>{q.options.map(o=><button key={o.v} onClick={()=>handleQAnswer(o.l)} style={{background:"transparent",border:`1px solid ${C.border2}`,borderRadius:10,padding:"14px 16px",textAlign:"left",cursor:"pointer",fontFamily:F.sans,transition:"all 0.15s"}}><div style={{fontSize:14,color:C.text,marginBottom:2}}>{o.l}</div><div style={{fontSize:11,color:C.dim}}>{o.d}</div></button>)}</div>;
 if(q.type==="multiselect") return <div><div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>{q.options.map(o=>{const s=multiSel.includes(o);return<button key={o} onClick={()=>setMultiSel(p=>s?p.filter(x=>x!==o):[...p,o])} style={{background:s?"#100f00":"transparent",border:s?`1px solid ${C.amber}44`:`1px solid ${C.border2}`,borderRadius:10,padding:"12px 16px",textAlign:"left",color:s?C.amber:C.muted,fontSize:14,cursor:"pointer",fontFamily:F.sans,display:"flex",gap:10,alignItems:"center"}}><span style={{fontSize:11,opacity:s?1:0.3}}>{s?"◆":"◇"}</span>{o}</button>;})}</div><Btn onClick={()=>handleQAnswer(multiSel.join(", ")||"Flexible")}>Continue →</Btn></div>;
 if(q.type==="rank") return <RankQ options={q.options} onAnswer={handleQAnswer}/>;
-```
+
 if(q.type==="text") return <div><input value={textVal} onChange={e=>setTextVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&textVal.trim()&&handleQAnswer(textVal.trim())} placeholder={q.placeholder} style={{width:"100%",background:C.surface,border:`1px solid ${C.border2}`,borderRadius:10,padding:"14px 16px",color:C.text,fontSize:14,fontFamily:F.sans,outline:"none",marginBottom:14}}/><Btn onClick={()=>textVal.trim()&&handleQAnswer(textVal.trim())}>Continue →</Btn></div>;
 if(q.type==="number") return <div><div style={{display:"flex",alignItems:"center",background:C.surface,border:`1px solid ${C.border2}`,borderRadius:10,overflow:"hidden",marginBottom:14,maxWidth:240}}>{q.prefix&&<span style={{padding:"0 14px",color:C.amber,fontSize:16,background:"#0e0e0e",borderRight:`1px solid ${C.border2}`,alignSelf:"stretch",display:"flex",alignItems:"center",fontFamily:F.sans}}>{q.prefix}</span>}<input type="number" value={textVal} onChange={e=>setTextVal(e.target.value)} onKeyDown={e=>e.key==="Enter"&&textVal&&handleQAnswer(textVal)} placeholder={q.placeholder} style={{flex:1,background:"transparent",border:"none",padding:"14px",color:C.text,fontSize:16,fontFamily:F.sans,outline:"none"}}/>{q.suffix&&<span style={{padding:"0 12px",color:C.dim,fontSize:12,background:"#0e0e0e",borderLeft:`1px solid ${C.border2}`,alignSelf:"stretch",display:"flex",alignItems:"center",fontFamily:F.sans}}>{q.suffix}</span>}</div><Btn onClick={()=>textVal&&handleQAnswer(textVal)}>Continue →</Btn></div>;
 if(q.type==="textarea") return <div><textarea value={textVal} onChange={e=>setTextVal(e.target.value)} placeholder={q.placeholder} style={{width:"100%",minHeight:120,background:C.surface,border:`1px solid ${C.border2}`,borderRadius:10,padding:"14px 16px",color:C.text,fontSize:13,fontFamily:F.sans,resize:"none",outline:"none",lineHeight:1.65,marginBottom:14}}/><Btn onClick={()=>handleQAnswer(textVal.trim()||"Not provided")}>{textVal.trim()?"Continue →":"Skip →"}</Btn></div>;
 return null;
-```
+
 
 };
 
@@ -1239,7 +1239,7 @@ return null;
 if(view===V.LANDING) return (
 <div style={{ minHeight:"100vh",background:C.bg,display:"flex",justifyContent:"center" }}>
 
-```
+
   <style>{`*{box-sizing:border-box} @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}`}</style>
   <div style={{ width:"100%",maxWidth:390,minHeight:"100vh",background:C.bg,paddingBottom:120,position:"relative" }}>
     <div style={{ position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:390,background:`linear-gradient(to top,${C.bg} 60%,transparent)`,padding:"16px 22px 24px",zIndex:100 }}>
@@ -1340,7 +1340,7 @@ if(view===V.LANDING) return (
   {showAdmin&&<AdminDashboard onClose={()=>setShowAdmin(false)} mobile={mobile}/>}
   {selectedNiche&&<NicheSheet niche={selectedNiche} onClose={()=>setSelectedNiche(null)} isUserNiche={false}/>}
 </div>
-```
+
 
 );
 
