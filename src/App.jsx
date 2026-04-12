@@ -86,7 +86,7 @@ const e = this.events;
 return {
 total_events: e.length,
 quiz_questions_answered: e.filter(x=>x.event_type==="quiz_question_answered").length,
-screens_viewed: […new Set(e.filter(x=>x.event_type==="screen_viewed").map(x=>x.event_data.screen))],
+screens_viewed: [...new Set(e.filter(x=>x.event_type==="screen_viewed").map(x=>x.event_data.screen))],
 chosen_idea: e.find(x=>x.event_type==="idea_chosen")?.event_data?.idea_title||null,
 script_copied: e.some(x=>x.event_type==="script_copied"),
 prompt_pack_converted: e.some(x=>x.event_type==="prompt_pack_converted"),
