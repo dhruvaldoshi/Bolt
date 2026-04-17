@@ -753,13 +753,13 @@ return (
 
 
 );
-}// - ADMIN DASHBOARD -
+}
+// - ADMIN DASHBOARD -
 function AdminDashboard({ onClose, mobile }) {
 const [tab,setTab]=useState("overview");
 const [expandedSeg,setExpandedSeg]=useState(null);
 const [expandedDim,setExpandedDim]=useState(null);
 const [selectedNiche,setSelectedNiche]=useState(null);
-
 const summary=Analytics.getSummary();
 const events=Analytics.getEvents ? Analytics.getEvents() : Analytics.events;
 const abCell=localStorage.getItem("bolt_ab_cell")||"A";
