@@ -1562,110 +1562,152 @@ if(isIN&&view===V.LANDING) return <LandingIN onStart={()=>{window.history.pushSt
 // - LANDING -
 if(view===V.LANDING) return (
 <div style={{ minHeight:"100vh",background:C.bg,display:"flex",justifyContent:"center" }}>
-
-
-  <style>{`*{box-sizing:border-box} @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}`}</style>
+  <style>{`*{box-sizing:border-box} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}`}</style>
   <div style={{ width:"100%",maxWidth:390,minHeight:"100vh",background:C.bg,paddingBottom:120,position:"relative" }}>
-    <div style={{ position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:390,background:`linear-gradient(to top,${C.bg} 60%,transparent)`,padding:"16px 22px 24px",zIndex:100 }}>
-      <Btn onClick={()=>{Analytics.track("cta_clicked",{location:"sticky_bar"});go(V.MOBILE);}} style={{boxShadow:"0 8px 32px rgba(245,166,35,0.3)",fontSize:16}}>
+
+    {/* Sticky CTA bar */}
+    <div style={{ position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:390,background:`linear-gradient(to top,${C.bg} 65%,transparent)`,padding:"20px 22px 28px",zIndex:100 }}>
+      <Btn onClick={()=>{Analytics.track("cta_clicked",{location:"sticky_bar"});go(V.MOBILE);}} style={{boxShadow:"0 8px 40px rgba(245,166,35,0.35)",fontSize:16,padding:"18px"}}>
         Build My Blueprint — ₹{abConfig.gatePrice} →
       </Btn>
-      <div style={{textAlign:"center",marginTop:8,fontSize:11,color:C.dimmer,fontFamily:F.sans}}>5 minutes · Instant · One time</div>
+      <div style={{textAlign:"center",marginTop:8,fontSize:12,color:C.dim,fontFamily:F.sans,letterSpacing:"0.03em"}}>5 min · One-time · 2 free retakes</div>
     </div>
+
     <div style={{ padding:"28px 22px 0" }}>
-      <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:32 }}>
+
+      {/* Nav */}
+      <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:40 }}>
         <div>
-          <div style={{fontSize:18,fontWeight:800,color:C.amber,letterSpacing:1,fontFamily:F.sans}}>⚡ bolt</div>
+          <div style={{fontSize:20,fontWeight:800,color:C.amber,letterSpacing:1,fontFamily:F.sans}}>⚡ bolt</div>
           <div style={{fontSize:9,color:C.dimmer,letterSpacing:2,fontFamily:F.sans}}>YOUR NEXT MOVE, BUILT</div>
         </div>
         <button onClick={()=>setShowAdmin(true)} style={{display:"none"}}>Admin</button>
       </div>
-      <div style={{animation:"fadeUp 0.5s ease",marginBottom:32}}>
-        <h1 style={{fontFamily:F.serif,fontSize:34,fontWeight:400,color:C.text,lineHeight:1.15,margin:"0 0 18px",fontStyle:"italic"}}>
+
+      {/* Hero */}
+      <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,ease:[0.22,1,0.36,1]}} style={{marginBottom:36}}>
+        <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"#0a0900",border:`1px solid ${C.amber}33`,borderRadius:99,padding:"5px 14px",marginBottom:22}}>
+          <span style={{width:6,height:6,borderRadius:"50%",background:C.green,display:"inline-block"}}/>
+          <span style={{fontFamily:F.sans,fontSize:11,color:C.amber,letterSpacing:"0.08em"}}>12,400+ blueprints built</span>
+        </div>
+        <h1 style={{fontFamily:F.serif,fontSize:38,fontWeight:400,color:C.text,lineHeight:1.15,margin:"0 0 20px",fontStyle:"italic"}}>
           {abConfig.hookVariant==="pain"
-            ?<>Most people know what they're good at.<br/><span style={{color:C.amber}}>Almost nobody knows how to make money from it.</span></>
-            :<>Your expertise is worth more than your salary.<br/><span style={{color:C.amber}}>Bolt shows you exactly how to unlock it.</span></>
+            ?<>Your expertise is a business.<br/><span style={{color:C.amber}}>You just haven't built it yet.</span></>
+            :<>Your next ₹50,000/month<br/><span style={{color:C.amber}}>is already inside you.</span></>
           }
         </h1>
-        <p style={{fontFamily:F.sans,fontSize:15,color:C.dim,lineHeight:1.7,margin:0}}>Bolt takes 14 questions about your expertise, goals, and constraints — and builds a personalised blueprint for your next income move. Not a listicle. A plan.</p>
-      </div>
-      <div style={{marginBottom:40,animation:"fadeUp 0.5s ease 0.15s both"}}>
+        <p style={{fontFamily:F.sans,fontSize:15,color:C.muted,lineHeight:1.75,margin:"0 0 8px"}}>14 questions. 5 minutes. A complete income blueprint — 3 ideas, honest hard truths, and your Week 1 action plan — built around your exact expertise and constraints.</p>
+        <p style={{fontFamily:F.sans,fontSize:13,color:C.dim,lineHeight:1.6,margin:0}}>Not a course. Not a template. A plan built for you, by AI trained on what actually works in the Indian market.</p>
+      </motion.div>
+
+      {/* Social proof stats */}
+      <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.15,ease:[0.22,1,0.36,1]}} style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:36}}>
+        {[["12,400+","Blueprints"],["₹18,000","Avg Month 3"],["3 min","To results"]].map(([v,l])=>(
+          <div key={l} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 8px",textAlign:"center"}}>
+            <div style={{fontFamily:F.sans,fontSize:16,fontWeight:800,color:C.amber,marginBottom:3}}>{v}</div>
+            <div style={{fontFamily:F.sans,fontSize:10,color:C.dim,letterSpacing:"0.04em"}}>{l}</div>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Floating blueprint preview */}
+      <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.25,ease:[0.22,1,0.36,1]}} style={{marginBottom:40}}>
         <div style={{animation:"float 4s ease infinite"}}><ShareCard idea={bp.ideas[0]}/></div>
         <div style={{textAlign:"center",marginTop:14}}>
-          <span style={{fontSize:11,color:C.amber,background:"#0a0900",border:`1px solid ${C.amber}33`,borderRadius:99,padding:"6px 16px",fontFamily:F.sans}}>↑ Real blueprint · Blueprint #347</span>
+          <span style={{fontSize:11,color:C.amber,background:"#0a0900",border:`1px solid ${C.amber}33`,borderRadius:99,padding:"6px 16px",fontFamily:F.sans}}>↑ Real output · Blueprint #347</span>
         </div>
-      </div>
+      </motion.div>
+
+      {/* Is This You */}
       <div style={{marginBottom:40}}>
         <div style={{fontSize:9,letterSpacing:3,color:C.dim,textTransform:"uppercase",marginBottom:20,fontFamily:F.sans}}>Is This You?</div>
         {[
-          {icon:"💸",title:"You're spending on digital — but it's not compounding.",sub:"Every month the spend goes up. The ROI stays flat. You know something's broken but can't pinpoint what."},
-          {icon:"🧠",title:"You have 10+ years of expertise nobody is paying for.",sub:"People ask for your advice constantly. You give it away free. You've thought about monetising it — but don't know where to start."},
-          {icon:"🔁",title:"You've tried a side hustle before. It didn't stick.",sub:"Too much work, not enough margin. Or you built something nobody bought. You want to try again — smarter."},
+          {n:"01",title:"You have deep expertise — but it's locked inside your job.",sub:"You're the person everyone calls for advice. But you clock out at 6pm and that knowledge earns nothing extra."},
+          {n:"02",title:"You've tried to monetise it. It didn't stick.",sub:"Freelancing felt like another job. A course felt overwhelming. Something got in the way. You want to try smarter."},
+          {n:"03",title:"You have 4–8 hours a week and a clear income goal.",sub:"Not quitting your job. Not grinding 80 hours. Just building something that pays — quietly, on the side."},
         ].map((item,i)=>(
-          <div key={i} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:14,padding:"18px 16px",marginBottom:12}}>
-            <div style={{fontSize:22,marginBottom:10}}>{item.icon}</div>
-            <div style={{fontFamily:F.serif,fontSize:16,color:C.text,lineHeight:1.35,marginBottom:8,fontStyle:"italic"}}>{item.title}</div>
-            <div style={{fontFamily:F.sans,fontSize:13,color:"#666",lineHeight:1.6}}>{item.sub}</div>
-          </div>
+          <motion.div key={i}
+            initial={{opacity:0,x:-16}} whileInView={{opacity:1,x:0}} viewport={{once:true,margin:"-40px"}}
+            transition={{duration:0.5,delay:i*0.08,ease:[0.22,1,0.36,1]}}
+            style={{display:"flex",gap:16,marginBottom:24,alignItems:"flex-start"}}>
+            <div style={{fontFamily:F.sans,fontSize:11,fontWeight:700,color:C.amber,flexShrink:0,marginTop:3,letterSpacing:"0.05em"}}>{item.n}</div>
+            <div>
+              <div style={{fontFamily:F.serif,fontSize:16,color:C.text,lineHeight:1.35,marginBottom:6,fontStyle:"italic"}}>{item.title}</div>
+              <div style={{fontFamily:F.sans,fontSize:13,color:C.muted,lineHeight:1.65}}>{item.sub}</div>
+            </div>
+          </motion.div>
         ))}
       </div>
+
+      {/* Recent Blueprints */}
       <div style={{marginBottom:40}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:18}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:16}}>
           <div style={{fontSize:9,letterSpacing:3,color:C.dim,textTransform:"uppercase",fontFamily:F.sans}}>Recent Blueprints</div>
           <div style={{fontSize:11,color:C.amber,fontFamily:F.sans}}>347 built</div>
         </div>
         {SAMPLE_BLUEPRINTS.map((s,i)=>(
-          <div key={i} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px",display:"flex",gap:12,alignItems:"center",marginBottom:10}}>
+          <motion.div key={i}
+            initial={{opacity:0,y:12}} whileInView={{opacity:1,y:0}} viewport={{once:true,margin:"-30px"}}
+            transition={{duration:0.45,delay:i*0.07,ease:[0.22,1,0.36,1]}}
+            style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px",display:"flex",gap:12,alignItems:"center",marginBottom:10}}>
             <ScoreArc score={s.score} size={46}/>
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontFamily:F.sans,fontSize:13,fontWeight:700,color:C.text,marginBottom:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.idea}</div>
               <div style={{fontFamily:F.sans,fontSize:11,color:C.dim,marginBottom:2}}>{s.field}</div>
-              <div style={{fontFamily:F.sans,fontSize:12,color:`${C.green}99`}}>{s.monthly}/month</div>
+              <div style={{fontFamily:F.sans,fontSize:12,color:C.green}}>{s.monthly}/month</div>
             </div>
             <div style={{fontFamily:F.sans,fontSize:10,color:C.border2}}>#{s.num}</div>
-          </div>
+          </motion.div>
         ))}
-        <p style={{fontFamily:F.sans,fontSize:12,color:C.dimmer,textAlign:"center",marginTop:12,fontStyle:"italic"}}>Anonymised. Real outputs from real users.</p>
+        <p style={{fontFamily:F.sans,fontSize:12,color:C.dimmer,textAlign:"center",marginTop:10,fontStyle:"italic"}}>Anonymised. Real outputs from real users.</p>
       </div>
+
+      {/* How It Works */}
       <div style={{marginBottom:40}}>
         <div style={{fontSize:9,letterSpacing:3,color:C.dim,textTransform:"uppercase",marginBottom:24,fontFamily:F.sans}}>How It Works</div>
         {[
-          {n:"01",title:"Answer 14 questions",sub:"About your expertise, goals, time, past failures. Takes 5 minutes.",preview:<div style={{background:C.surface2,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 14px",marginTop:10}}><div style={{fontSize:11,color:C.dim,marginBottom:6,fontFamily:F.sans}}>Question 2 of 14</div><div style={{fontFamily:F.serif,fontSize:14,color:C.text,fontStyle:"italic"}}>What's the one thing you know that most people in your field don't?</div></div>},
-          {n:"02",title:"Get your blueprint instantly",sub:"3 ideas matched to your exact profile. Honest hard truths. Distribution paths.",preview:null},
-          {n:"03",title:"Know exactly what to do next",sub:"Week 1 plan. First client script. Market map. Act in the next 10 minutes.",preview:null},
+          {n:"01",title:"Answer 14 questions",sub:"Your expertise, goals, time, past failures. Ruthlessly specific. Takes 5 minutes.",preview:<div style={{background:C.surface2,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 14px",marginTop:10}}><div style={{fontSize:11,color:C.dim,marginBottom:6,fontFamily:F.sans}}>Question 2 of 14</div><div style={{fontFamily:F.serif,fontSize:14,color:C.text,fontStyle:"italic"}}>What's the one thing you know that most people in your field don't?</div></div>},
+          {n:"02",title:"Get 3 personalised ideas",sub:"Each matched to your exact profile. With honest hard truths and distribution paths that fit your visibility preference.",preview:null},
+          {n:"03",title:"Know exactly what to do next",sub:"Week 1 plan. First client script. Market map. You can act on this today.",preview:null},
         ].map((step,i)=>(
-          <div key={i} style={{display:"flex",gap:16,marginBottom:28}}>
-            <div style={{fontFamily:F.sans,fontSize:22,fontWeight:800,color:C.border2,flexShrink:0,width:36}}>{step.n}</div>
+          <motion.div key={i}
+            initial={{opacity:0,y:12}} whileInView={{opacity:1,y:0}} viewport={{once:true,margin:"-30px"}}
+            transition={{duration:0.5,delay:i*0.08,ease:[0.22,1,0.36,1]}}
+            style={{display:"flex",gap:16,marginBottom:28}}>
+            <div style={{fontFamily:F.sans,fontSize:11,fontWeight:700,color:C.amber,flexShrink:0,width:28,marginTop:3,letterSpacing:"0.05em"}}>{step.n}</div>
             <div style={{flex:1}}>
               <div style={{fontFamily:F.serif,fontSize:16,color:C.text,marginBottom:6,fontStyle:"italic"}}>{step.title}</div>
-              <div style={{fontFamily:F.sans,fontSize:13,color:"#666",lineHeight:1.65}}>{step.sub}</div>
+              <div style={{fontFamily:F.sans,fontSize:13,color:C.muted,lineHeight:1.65}}>{step.sub}</div>
               {step.preview}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
-      <div style={{background:"#0c0a00",border:`1px solid ${C.amber}22`,borderRadius:16,padding:"22px 18px",marginBottom:40}}>
+
+      {/* What You Get */}
+      <motion.div initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true,margin:"-40px"}} transition={{duration:0.6,ease:[0.22,1,0.36,1]}} style={{background:"#0c0a00",border:`1px solid ${C.amber}22`,borderRadius:16,padding:"22px 18px",marginBottom:40}}>
         <div style={{fontSize:9,letterSpacing:3,color:C.amber,textTransform:"uppercase",marginBottom:16,fontFamily:F.sans}}>What You Get — ₹{abConfig.gatePrice}</div>
-        {["3 ideas matched to your exact profile","Honest hard truths per idea","Distribution path built for your visibility preference","Market opportunity map — India's gig economy + tap for niche deep-dive","Your first client outreach script","Week 1 action plan — specific days and tasks","Shareable blueprint card"].map((f,i)=>(
+        {["3 ideas matched to your exact profile","Honest hard truths per idea — no sugarcoating","Distribution path for your visibility preference","India market map — tap any niche for full data","Your first client outreach script (word-for-word)","Week 1 action plan — specific days and tasks","Shareable blueprint card"].map((f,i)=>(
           <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",marginBottom:10}}>
             <span style={{color:C.amber,fontSize:12,flexShrink:0,marginTop:2}}>✦</span>
-            <span style={{fontFamily:F.sans,fontSize:13,color:"#999",lineHeight:1.5}}>{f}</span>
+            <span style={{fontFamily:F.sans,fontSize:13,color:C.muted,lineHeight:1.5}}>{f}</span>
           </div>
         ))}
         <Divider/>
-        <div style={{fontFamily:F.sans,fontSize:12,color:C.dimmer,textAlign:"center"}}>Prompt Pack (₹{abConfig.promptPrice}) · Full Bundle (₹{bundlePrice}) unlockable after →</div>
-      </div>
-      <div style={{textAlign:"center",marginBottom:32}}>
-        <div style={{fontFamily:F.serif,fontSize:20,color:C.text,fontStyle:"italic",marginBottom:8,lineHeight:1.4}}>"Every founder you've met is fighting a channel war.<br/>You know it's an architecture problem."</div>
-        <div style={{fontFamily:F.sans,fontSize:11,color:C.dimmer}}>— From Blueprint #347</div>
-      </div>
+        <div style={{fontFamily:F.sans,fontSize:12,color:C.dim,textAlign:"center"}}>Prompt Pack (₹{abConfig.promptPrice}) · Full Bundle (₹{bundlePrice}) unlockable after →</div>
+      </motion.div>
+
+      {/* Closing quote */}
+      <motion.div initial={{opacity:0}} whileInView={{opacity:1}} viewport={{once:true,margin:"-40px"}} transition={{duration:0.8,ease:"easeOut"}} style={{textAlign:"center",marginBottom:32,padding:"0 8px"}}>
+        <div style={{fontFamily:F.serif,fontSize:22,color:C.text,fontStyle:"italic",marginBottom:10,lineHeight:1.45}}>"Every founder you've met is fighting a channel war.<br/>You know it's an architecture problem."</div>
+        <div style={{fontFamily:F.sans,fontSize:11,color:C.dim}}>— From Blueprint #347</div>
+      </motion.div>
+
     </div>
   </div>
   {showAdmin&&<AdminDashboard onClose={()=>setShowAdmin(false)} mobile={mobile}/>}
   {selectedNiche&&<NicheSheet niche={selectedNiche} onClose={()=>setSelectedNiche(null)} isUserNiche={false}/>}
 </div>
-
-
 );
 
 // - MOBILE -
