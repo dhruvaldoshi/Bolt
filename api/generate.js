@@ -1,9 +1,13 @@
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic();
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
   const { answers } = req.body;
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return res.status(500).json({ error: "API key not configured" });
+  if (!process.env.ANTHROPIC_API_KEY)
+    return res.status(500).json({ error: "API key not configured" });
 
   const earnRanked = answers.earnMode
     ? answers.earnMode.split(", ").slice(0, 2).join(" then ")
@@ -69,28 +73,13 @@ Respond ONLY with valid JSON. No markdown. No explanation. Just the JSON object.
 }`;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 4096,
-        messages: [{ role: "user", content: prompt }],
-      }),
+    const message = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 4096,
+      messages: [{ role: "user", content: prompt }],
     });
 
-    if (!response.ok) {
-      const err = await response.text();
-      console.error("Anthropic error:", err);
-      return res.status(502).json({ error: "Upstream API error" });
-    }
-
-    const data = await response.json();
-    const text = data.content[0].text;
+    const text = message.content[0].text;
 
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return res.status(502).json({ error: "No JSON in response" });

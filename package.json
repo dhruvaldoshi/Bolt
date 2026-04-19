@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
     "framer-motion": "^12.38.0",
     "graphify": "^1.0.0",
     "react": "^18.2.0",
