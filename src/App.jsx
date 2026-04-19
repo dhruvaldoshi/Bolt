@@ -1397,8 +1397,8 @@ const go=v=>{ setView(v); setTimeout(()=>topRef.current?.scrollIntoView({behavio
 const copy=(txt,set)=>{ navigator.clipboard?.writeText(txt).catch(()=>{}); set(true); setTimeout(()=>set(false),2500); };
 
 const handleMobile=()=>{
-if(mobileInput.replace(/\D/g,"").length<10)return;
-const num=mobileInput.replace(/\D/g,"");
+const num=mobileInput.replace(/\D/g,"").slice(0,10);
+if(num.length<10)return;
 const count=UserState.getRetakeCount(num);
 setMobile(num); setRetakeCount(count);
 localStorage.setItem("bolt_mobile",num);
@@ -1575,7 +1575,7 @@ if(view===V.MOBILE) return (
 <div style={{marginBottom:14}}>
 <div style={{display:"flex",background:C.surface,border:`1px solid ${C.border2}`,borderRadius:12,overflow:"hidden"}}>
 <div style={{padding:"0 16px",background:"#0e0e0e",borderRight:`1px solid ${C.border2}`,display:"flex",alignItems:"center",fontSize:14,color:C.muted,fontFamily:F.sans,flexShrink:0}}>🇮🇳 +91</div>
-<input type="tel" value={mobileInput} onChange={e=>setMobileInput(e.target.value.replace(/\D/g,"").slice(0,10))} onKeyDown={e=>e.key==="Enter"&&handleMobile()} placeholder="10-digit mobile number" style={{flex:1,background:"transparent",border:"none",padding:"16px",color:C.text,fontSize:16,fontFamily:F.sans,outline:"none"}}/>
+<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={10} value={mobileInput} onChange={e=>setMobileInput(e.target.value.replace(/\D/g,""))} onKeyDown={e=>e.key==="Enter"&&handleMobile()} placeholder="10-digit mobile number" style={{flex:1,background:"transparent",border:"none",padding:"16px",color:C.text,fontSize:16,fontFamily:F.sans,outline:"none"}}/>
 </div>
 </div>
 <Btn onClick={handleMobile} style={{marginBottom:14}}>Send OTP →</Btn>
@@ -1607,7 +1607,7 @@ if(view===V.OTP) return (
 <p style={{fontFamily:F.sans,fontSize:12,color:C.amber,margin:"8px 0 0"}}>Demo: use 1234</p>
 </div>
 <div style={{marginBottom:14}}>
-<input type="number" value={otpInput} onChange={e=>{setOtpInput(e.target.value.slice(0,4));setOtpError("");}} onKeyDown={e=>e.key==="Enter"&&handleOtp()} placeholder="Enter 4-digit OTP" style={{width:"100%",background:C.surface,border:`1px solid ${otpError?C.red:C.border2}`,borderRadius:12,padding:"16px",color:C.text,fontSize:22,fontFamily:F.sans,outline:"none",textAlign:"center",letterSpacing:8}}/>
+<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={otpInput} onChange={e=>{setOtpInput(e.target.value.replace(/\D/g,"").slice(0,4));setOtpError("");}} onKeyDown={e=>e.key==="Enter"&&handleOtp()} placeholder="1 2 3 4" style={{width:"100%",background:C.surface,border:`1px solid ${otpError?C.red:C.border2}`,borderRadius:12,padding:"16px",color:C.text,fontSize:22,fontFamily:F.sans,outline:"none",textAlign:"center",letterSpacing:12}}/>
 {otpError&&<div style={{fontSize:12,color:C.red,textAlign:"center",marginTop:8,fontFamily:F.sans}}>{otpError}</div>}
 </div>
 <Btn onClick={handleOtp} style={{marginBottom:14}}>Verify & Continue →</Btn>
