@@ -1490,7 +1490,7 @@ if(count>=2) go(V.RETAKE_GATE); else go(V.OTP);
 };
 
 const handleOtp=()=>{
-if(otpInput!=="1234"){ setOtpError("Incorrect OTP. Use 1234 for demo."); return; }
+if(otpInput!=="1234"){ setOtpError("Incorrect OTP. Please try again."); return; }
 Analytics.track("otp_verified",{mobile});
 if(!UserState.get(mobile)) UserState.set(mobile,{mobile_number:mobile,retake_count:0,blueprints:[],referral_code:`BOLT-${mobile.slice(-4).toUpperCase()}`,ab_cell:abCell});
 Analytics.track("quiz_started",{mobile});
@@ -1507,7 +1507,7 @@ else{
   go(V.GENERATING);
   fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({answers:up})})
     .then(r=>r.ok?r.json():Promise.reject(r.status))
-    .then(bp=>{ setBlueprint(bp); go(V.GATE); })
+    .then(generated=>{ setBlueprint(generated); go(V.GATE); })
     .catch(()=>{ go(V.GATE); }); // falls back to DEMO on error
 }
 };
@@ -1599,15 +1599,15 @@ if(view===V.LANDING) return (
           <div style={{fontSize:9,letterSpacing:3,color:C.dim,textTransform:"uppercase",fontFamily:F.sans}}>Recent Blueprints</div>
           <div style={{fontSize:11,color:C.amber,fontFamily:F.sans}}>347 built</div>
         </div>
-        {SAMPLE_BLUEPRINTS.map((bp,i)=>(
+        {SAMPLE_BLUEPRINTS.map((s,i)=>(
           <div key={i} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px",display:"flex",gap:12,alignItems:"center",marginBottom:10}}>
-            <ScoreArc score={bp.score} size={46}/>
+            <ScoreArc score={s.score} size={46}/>
             <div style={{flex:1,minWidth:0}}>
-              <div style={{fontFamily:F.sans,fontSize:13,fontWeight:700,color:C.text,marginBottom:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{bp.idea}</div>
-              <div style={{fontFamily:F.sans,fontSize:11,color:C.dim,marginBottom:2}}>{bp.field}</div>
-              <div style={{fontFamily:F.sans,fontSize:12,color:`${C.green}99`}}>{bp.monthly}/month</div>
+              <div style={{fontFamily:F.sans,fontSize:13,fontWeight:700,color:C.text,marginBottom:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.idea}</div>
+              <div style={{fontFamily:F.sans,fontSize:11,color:C.dim,marginBottom:2}}>{s.field}</div>
+              <div style={{fontFamily:F.sans,fontSize:12,color:`${C.green}99`}}>{s.monthly}/month</div>
             </div>
-            <div style={{fontFamily:F.sans,fontSize:10,color:C.border2}}>#{bp.num}</div>
+            <div style={{fontFamily:F.sans,fontSize:10,color:C.border2}}>#{s.num}</div>
           </div>
         ))}
         <p style={{fontFamily:F.sans,fontSize:12,color:C.dimmer,textAlign:"center",marginTop:12,fontStyle:"italic"}}>Anonymised. Real outputs from real users.</p>
@@ -1665,7 +1665,7 @@ if(view===V.MOBILE) return (
 <div style={{marginBottom:14}}>
 <div style={{display:"flex",background:C.surface,border:`1px solid ${C.border2}`,borderRadius:12,overflow:"hidden"}}>
 <div style={{padding:"0 16px",background:"#0e0e0e",borderRight:`1px solid ${C.border2}`,display:"flex",alignItems:"center",fontSize:14,color:C.muted,fontFamily:F.sans,flexShrink:0}}>🇮🇳 +91</div>
-<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={10} value={mobileInput} onChange={e=>setMobileInput(e.target.value.replace(/\D/g,""))} onKeyDown={e=>e.key==="Enter"&&handleMobile()} placeholder="10-digit mobile number" style={{flex:1,background:"transparent",border:"none",padding:"16px",color:C.text,fontSize:16,fontFamily:F.sans,outline:"none"}}/>
+<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={10} value={mobileInput} onChange={e=>setMobileInput(e.target.value.replace(/\D/g,"").slice(0,10))} onKeyDown={e=>e.key==="Enter"&&handleMobile()} placeholder="10-digit mobile number" style={{flex:1,background:"transparent",border:"none",padding:"16px",color:C.text,fontSize:16,fontFamily:F.sans,outline:"none"}}/>
 </div>
 </div>
 <Btn onClick={handleMobile} style={{marginBottom:14}}>Send OTP →</Btn>
@@ -1725,7 +1725,7 @@ if(view===V.RETAKE_GATE) return (
 <div key={f} style={{display:"flex",gap:10,marginBottom:8}}><span style={{color:C.amber,fontSize:11}}>✦</span><span style={{fontFamily:F.sans,fontSize:13,color:"#999"}}>{f}</span></div>
 ))}
 </div>
-<Btn onClick={()=>{Analytics.track("retake_gate_converted",{mobile,amount:399});UserState.incrementRetake(mobile);go(V.QUIZ);}} style={{marginBottom:12,fontSize:16}}>
+<Btn onClick={()=>{Analytics.track("retake_gate_converted",{mobile,amount:399});UserState.incrementRetake(mobile);setBlueprint(null);setQIdx(0);setAnswers({});setTextVal("");setMultiSel([]);go(V.QUIZ);}} style={{marginBottom:12,fontSize:16}}>
 Rebuild My Blueprint — ₹399 →
 </Btn>
 <OutlineBtn onClick={()=>go(V.LANDING)}>← Not yet</OutlineBtn>
@@ -1800,7 +1800,8 @@ if(view===V.GATE) return (
 <Btn onClick={()=>{Analytics.track("gate_converted",{mobile,amount:abConfig.gatePrice,ab_cell:abCell});UserState.incrementRetake(mobile);go(V.WELCOME);}} style={{background:`linear-gradient(135deg,${C.amber},#e8410a)`,boxShadow:"0 8px 28px rgba(245,166,35,0.25)",fontSize:16,marginBottom:10}}>
 Unlock My Blueprint — ₹{abConfig.gatePrice}
 </Btn>
-<div style={{textAlign:"center",fontSize:11,color:C.dimmer,fontFamily:F.sans}}>One-time · 2 free retakes included</div>
+<div style={{textAlign:"center",fontSize:11,color:C.dimmer,fontFamily:F.sans,marginBottom:14}}>One-time · 2 free retakes included</div>
+<OutlineBtn onClick={()=>{setBlueprint(null);setQIdx(0);setAnswers({});setTextVal("");setMultiSel([]);go(V.QUIZ);}}>← Redo Quiz</OutlineBtn>
 <div style={{height:40}}/>
 </Pad>
 </Phone>
@@ -2111,7 +2112,7 @@ if(view===V.SHARE) return (
 <div style={{fontFamily:F.sans,fontSize:16,fontWeight:800,color:C.amber,letterSpacing:1,marginBottom:4}}>⚡ bolt</div>
 <div style={{fontFamily:F.sans,fontSize:9,color:"#2a2a2a",letterSpacing:2}}>YOUR NEXT MOVE, BUILT</div>
 </div>
-<OutlineBtn onClick={()=>{setView(V.LANDING);setQIdx(0);setAnswers({});setChosenIdx(0);setPromptBought(false);setBundleBought(false);setWaSent(false);setMobileInput("");setOtpInput("");}} style={{borderRadius:10,marginBottom:10}}>← Start Over</OutlineBtn>
+<OutlineBtn onClick={()=>{setView(V.LANDING);setBlueprint(null);setQIdx(0);setAnswers({});setChosenIdx(0);setPromptBought(false);setBundleBought(false);setWaSent(false);setMobileInput("");setOtpInput("");setTextVal("");setMultiSel([]);}} style={{borderRadius:10,marginBottom:10}}>← Start Over</OutlineBtn>
 <button onClick={()=>setShowAdmin(true)} style={{display:"none"}}>View Analytics Dashboard</button>
 <div style={{height:40}}/>
 </Pad>
