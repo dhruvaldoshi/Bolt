@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 
 // System fonts only - no external dependencies
 
@@ -1171,55 +1172,53 @@ const FI={serif:"'Playfair Display',Georgia,serif",sans:"Inter,-apple-system,san
   if(typeof document==="undefined"||document.getElementById("bolt-in-styles"))return;
   const s=document.createElement("style");s.id="bolt-in-styles";
   s.textContent=`
-    @keyframes fadeUpHero{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes driftOrb{0%,100%{transform:translate(-50%,-50%) scale(1)}33%{transform:translate(calc(-50% + 24px),calc(-50% - 18px)) scale(1.05)}66%{transform:translate(calc(-50% - 16px),calc(-50% + 12px)) scale(0.97)}}
     @keyframes morphShape{0%,100%{border-radius:62% 38% 46% 54%/60% 44% 56% 40%}25%{border-radius:44% 56% 54% 46%/38% 62% 38% 62%}50%{border-radius:52% 48% 38% 62%/54% 46% 54% 46%}75%{border-radius:38% 62% 48% 52%/46% 54% 46% 54%}}
   `;
   document.head.appendChild(s);
 })();
-function useInView(threshold=0.15){
-  const ref=useRef(null);
-  const [visible,setVisible]=useState(false);
-  useEffect(()=>{
-    const el=ref.current;if(!el)return;
-    const obs=new IntersectionObserver(([e])=>{if(e.isIntersecting)setVisible(true);},{threshold});
-    obs.observe(el);return()=>obs.disconnect();
-  },[threshold]);
-  return[ref,visible];
-}
-function useScrollProgress(){
-  const[p,setP]=useState(0);
-  useEffect(()=>{
-    const fn=()=>{const el=document.documentElement;const s=el.scrollTop||document.body.scrollTop;const m=el.scrollHeight-el.clientHeight;setP(m>0?s/m:0);};
-    window.addEventListener("scroll",fn,{passive:true});return()=>window.removeEventListener("scroll",fn);
-  },[]);
-  return p;
-}
+const fadeUp={hidden:{opacity:0,y:40},show:{opacity:1,y:0}};
+const stagger={hidden:{},show:{transition:{staggerChildren:0.12}}};
 function Reveal({children,delay=0,style={}}){
-  const[ref,visible]=useInView();
   return(
-    <div ref={ref} style={{opacity:visible?1:0,transform:visible?"translateY(0)":"translateY(36px)",transition:`opacity 0.8s ease ${delay}s,transform 0.8s ease ${delay}s`,...style}}>
+    <motion.div
+      initial={{opacity:0,y:36}}
+      whileInView={{opacity:1,y:0}}
+      viewport={{once:true,margin:"-60px"}}
+      transition={{duration:0.7,ease:[0.22,1,0.36,1],delay}}
+      style={style}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 function INHero({onStart}){
   return(
     <section style={{minHeight:"100vh",background:CI.bg,display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:"80px 32px",position:"relative",overflow:"hidden",textAlign:"center"}}>
-      <div style={{position:"absolute",width:520,height:520,background:`radial-gradient(ellipse,${CI.accentLight} 0%,transparent 70%)`,borderRadius:"62% 38% 46% 54%/60% 44% 56% 40%",animation:"morphShape 14s ease-in-out infinite,driftOrb 18s ease-in-out infinite",top:"50%",left:"50%",pointerEvents:"none",opacity:0.7}}/>
-      <div style={{position:"relative",maxWidth:620,animation:"fadeUpHero 1.2s ease both"}}>
-        <div style={{display:"inline-block",background:CI.accentLight,color:CI.accent,fontSize:11,fontFamily:FI.sans,fontWeight:500,letterSpacing:"0.18em",textTransform:"uppercase",padding:"6px 16px",borderRadius:40,marginBottom:36}}>Free · 3 minutes · No signup</div>
-        <h1 style={{fontFamily:FI.serif,fontSize:"clamp(38px,7.5vw,66px)",fontWeight:400,color:CI.text,lineHeight:1.12,letterSpacing:"-0.02em",marginBottom:28}}>
+      <motion.div
+        style={{position:"absolute",width:520,height:520,background:`radial-gradient(ellipse,${CI.accentLight} 0%,transparent 70%)`,top:"50%",left:"50%",translateX:"-50%",translateY:"-50%",pointerEvents:"none"}}
+        animate={{borderRadius:["62% 38% 46% 54%/60% 44% 56% 40%","44% 56% 54% 46%/38% 62% 38% 62%","52% 48% 38% 62%/54% 46% 54% 46%","62% 38% 46% 54%/60% 44% 56% 40%"],x:["-50%","calc(-50% + 24px)","calc(-50% - 16px)","-50%"],y:["-50%","calc(-50% - 18px)","calc(-50% + 12px)","-50%"],scale:[1,1.05,0.97,1]}}
+        transition={{duration:18,repeat:Infinity,ease:"easeInOut"}}
+        initial={{opacity:0}} whileInView={{opacity:0.7}} viewport={{once:true}}
+      />
+      <motion.div style={{position:"relative",maxWidth:620}} variants={stagger} initial="hidden" animate="show">
+        <motion.div variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}}>
+          <div style={{display:"inline-block",background:CI.accentLight,color:CI.accent,fontSize:11,fontFamily:FI.sans,fontWeight:500,letterSpacing:"0.18em",textTransform:"uppercase",padding:"6px 16px",borderRadius:40,marginBottom:36}}>Free · 3 minutes · No signup</div>
+        </motion.div>
+        <motion.h1 variants={fadeUp} transition={{duration:0.9,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.serif,fontSize:"clamp(38px,7.5vw,66px)",fontWeight:400,color:CI.text,lineHeight:1.12,letterSpacing:"-0.02em",marginBottom:28}}>
           You already have a<br/><em style={{fontStyle:"italic",color:CI.accent}}>₹40,000/month skill.</em><br/>You just haven't mapped it.
-        </h1>
-        <p style={{fontFamily:FI.sans,fontSize:17,color:CI.muted,lineHeight:1.75,fontWeight:300,maxWidth:460,margin:"0 auto 20px"}}>Bolt asks seven questions about your life, skills, and time — then gives you a complete side-income blueprint built around who you already are.</p>
-        <p style={{fontFamily:FI.sans,fontSize:13,color:CI.dim,fontWeight:300,margin:"0 auto 44px",maxWidth:340}}>12,400+ blueprints generated. Takes 3 minutes. Completely free.</p>
-        <button onClick={onStart} style={{background:CI.text,color:CI.bg,border:"none",borderRadius:4,padding:"18px 44px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",transition:"all 0.3s ease"}}
-          onMouseEnter={e=>{e.currentTarget.style.background=CI.accent;}}
-          onMouseLeave={e=>{e.currentTarget.style.background=CI.text;}}>
-          Find my blueprint →
-        </button>
-      </div>
+        </motion.h1>
+        <motion.p variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.sans,fontSize:17,color:CI.muted,lineHeight:1.75,fontWeight:300,maxWidth:460,margin:"0 auto 20px"}}>Bolt asks seven questions about your life, skills, and time — then gives you a complete side-income blueprint built around who you already are.</motion.p>
+        <motion.p variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.sans,fontSize:13,color:CI.dim,fontWeight:300,margin:"0 auto 44px",maxWidth:340}}>12,400+ blueprints generated. Takes 3 minutes. Completely free.</motion.p>
+        <motion.div variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}}>
+          <motion.button onClick={onStart}
+            style={{background:CI.text,color:CI.bg,border:"none",borderRadius:4,padding:"18px 44px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer"}}
+            whileHover={{background:CI.accent,scale:1.03}}
+            whileTap={{scale:0.97}}
+            transition={{duration:0.2}}>
+            Find my blueprint →
+          </motion.button>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
@@ -1308,11 +1307,13 @@ function INHowItWorks({onStart}){
         ))}
       </div>
       <Reveal delay={0.3}>
-        <button onClick={onStart} style={{background:"transparent",color:CI.text,border:`1px solid ${CI.text}`,borderRadius:4,padding:"16px 40px",fontFamily:FI.sans,fontSize:14,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",transition:"all 0.3s ease"}}
-          onMouseEnter={e=>{e.currentTarget.style.background=CI.text;e.currentTarget.style.color=CI.bg;}}
-          onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=CI.text;}}>
+        <motion.button onClick={onStart}
+          style={{background:"transparent",color:CI.text,border:`1px solid ${CI.text}`,borderRadius:4,padding:"16px 40px",fontFamily:FI.sans,fontSize:14,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer"}}
+          whileHover={{background:CI.text,color:CI.bg,scale:1.03}}
+          whileTap={{scale:0.97}}
+          transition={{duration:0.2}}>
           Get my blueprint — free
-        </button>
+        </motion.button>
       </Reveal>
     </section>
   );
@@ -1407,28 +1408,42 @@ function INFinalCTA({onStart}){
         <p style={{fontFamily:FI.sans,fontSize:16,color:"#a89a8c",fontWeight:300,marginBottom:52,lineHeight:1.7}}>No email. No credit card. Just clarity.</p>
       </Reveal>
       <Reveal delay={0.35}>
-        <button onClick={onStart} style={{background:CI.accent,color:"#fff",border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",transition:"opacity 0.2s ease"}}
-          onMouseEnter={e=>{e.currentTarget.style.opacity="0.88";}}
-          onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}>
+        <motion.button onClick={onStart}
+          style={{background:CI.accent,color:"#fff",border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer"}}
+          whileHover={{opacity:0.88,scale:1.04}}
+          whileTap={{scale:0.96}}
+          transition={{duration:0.2}}>
           Begin now
-        </button>
+        </motion.button>
       </Reveal>
     </section>
   );
 }
 function LandingIN({onStart}){
-  const progress=useScrollProgress();
+  const containerRef=useRef(null);
+  const {scrollYProgress}=useScroll({container:containerRef});
+  const scaleX=useSpring(scrollYProgress,{stiffness:100,damping:30,restDelta:0.001});
+  const navOpacity=useTransform(scrollYProgress,[0,0.02],[0,1]);
   return(
-    <div style={{background:CI.bg,fontFamily:FI.sans}}>
-      <div style={{position:"fixed",top:0,left:0,width:2,height:`${progress*100}%`,background:CI.accent,zIndex:9999,transition:"height 0.1s linear"}}/>
-      <nav style={{position:"fixed",top:0,left:0,right:0,height:64,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 40px",background:`${CI.bg}ee`,backdropFilter:"blur(12px)",zIndex:100,borderBottom:`1px solid ${CI.border}`}}>
-        <span style={{fontFamily:FI.serif,fontSize:20,fontWeight:500,color:CI.text,letterSpacing:"-0.02em"}}>Bolt</span>
-        <button onClick={onStart} style={{background:"transparent",border:`1px solid ${CI.border}`,borderRadius:3,padding:"8px 20px",fontFamily:FI.sans,fontSize:13,color:CI.muted,cursor:"pointer",transition:"all 0.2s"}}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor=CI.text;e.currentTarget.style.color=CI.text;}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor=CI.border;e.currentTarget.style.color=CI.muted;}}>
+    <div ref={containerRef} style={{background:CI.bg,fontFamily:FI.sans,height:"100vh",overflowY:"auto"}}>
+      {/* Left-edge scroll progress line */}
+      <motion.div style={{position:"fixed",top:0,left:0,width:2,height:"100vh",background:CI.border,zIndex:9999,transformOrigin:"top"}}>
+        <motion.div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",background:CI.accent,scaleY:scaleX,transformOrigin:"top"}}/>
+      </motion.div>
+      {/* Nav */}
+      <motion.nav style={{position:"fixed",top:0,left:0,right:0,height:64,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 40px",background:`${CI.bg}f0`,backdropFilter:"blur(16px)",zIndex:100,borderBottom:`1px solid ${CI.border}`,opacity:navOpacity}}>
+        <motion.span
+          initial={{opacity:0,x:-12}} animate={{opacity:1,x:0}} transition={{duration:0.6,delay:0.8}}
+          style={{fontFamily:FI.serif,fontSize:20,fontWeight:500,color:CI.text,letterSpacing:"-0.02em"}}>Bolt</motion.span>
+        <motion.button onClick={onStart}
+          initial={{opacity:0,x:12}} animate={{opacity:1,x:0}} transition={{duration:0.6,delay:0.9}}
+          style={{background:"transparent",border:`1px solid ${CI.border}`,borderRadius:3,padding:"8px 20px",fontFamily:FI.sans,fontSize:13,color:CI.muted,cursor:"pointer"}}
+          whileHover={{borderColor:CI.text,color:CI.text,scale:1.02}}
+          whileTap={{scale:0.97}}
+          transition={{duration:0.2}}>
           Get started
-        </button>
-      </nav>
+        </motion.button>
+      </motion.nav>
       <div style={{paddingTop:64}}>
         <INHero onStart={onStart}/>
         <INShift/>
