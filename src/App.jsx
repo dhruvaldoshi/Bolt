@@ -244,7 +244,7 @@ const SAMPLE_BLUEPRINTS = [
 ];
 
 // - VIEWS -
-const V = { LANDING:"landing", MOBILE:"mobile", OTP:"otp", RETAKE_GATE:"retake_gate", QUIZ:"quiz", GATE:"gate", WELCOME:"welcome", DECISION:"decision", COMMITMENT:"commitment", ASSESSMENT:"assessment", FIRSTSTEP:"firststep", MARKET:"market", ROADMAP:"roadmap", SHARE:"share" };
+const V = { LANDING:"landing", MOBILE:"mobile", OTP:"otp", RETAKE_GATE:"retake_gate", QUIZ:"quiz", GENERATING:"generating", GATE:"gate", WELCOME:"welcome", DECISION:"decision", COMMITMENT:"commitment", ASSESSMENT:"assessment", FIRSTSTEP:"firststep", MARKET:"market", ROADMAP:"roadmap", SHARE:"share" };
 const SCREEN_ORDER = [V.GATE,V.WELCOME,V.DECISION,V.COMMITMENT,V.ASSESSMENT,V.FIRSTSTEP,V.MARKET,V.ROADMAP,V.SHARE];
 
 // - SHARED UI -
@@ -362,15 +362,15 @@ onMouseLeave={()=>setTip(null)}>
 );
 }
 
-function ShareCard({ idea, mini=false }) {
+function ShareCard({ idea, score=DEMO.score, positioning=bp.positioning, blueprintNumber=DEMO.blueprintNumber, mini=false }) {
 const sz=mini?50:70;
 return (
 <div style={{ background:"linear-gradient(135deg,#0d0d0d,#111108)",border:`1px solid ${C.amber}33`,borderRadius:mini?12:16,padding:mini?"14px":"22px 18px" }}>
 <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:mini?10:16 }}>
-<div><div style={{ fontSize:mini?9:10,letterSpacing:3,color:C.amber,textTransform:"uppercase",fontFamily:F.sans }}>⚡ bolt</div><div style={{ fontSize:9,color:C.dimmer,letterSpacing:1,fontFamily:F.sans }}>Blueprint #{DEMO.blueprintNumber}</div></div>
-<ScoreArc score={DEMO.score} size={sz} />
+<div><div style={{ fontSize:mini?9:10,letterSpacing:3,color:C.amber,textTransform:"uppercase",fontFamily:F.sans }}>⚡ bolt</div><div style={{ fontSize:9,color:C.dimmer,letterSpacing:1,fontFamily:F.sans }}>Blueprint #{blueprintNumber}</div></div>
+<ScoreArc score={score} size={sz} />
 </div>
-{!mini&&<p style={{ fontSize:13,color:"#ccc",lineHeight:1.6,margin:"0 0 14px",fontStyle:"italic",fontFamily:F.serif }}>"{DEMO.positioning}"</p>}
+{!mini&&<p style={{ fontSize:13,color:"#ccc",lineHeight:1.6,margin:"0 0 14px",fontStyle:"italic",fontFamily:F.serif }}>"{positioning}"</p>}
 <div style={{ background:"#0a0900",border:`1px solid ${C.amber}22`,borderRadius:mini?8:10,padding:mini?"8px 10px":"10px 12px" }}>
 <div style={{ fontSize:9,color:C.amber,letterSpacing:1.5,textTransform:"uppercase",marginBottom:4,fontFamily:F.sans }}>My Next Move</div>
 <div style={{ fontSize:mini?12:13,fontWeight:600,color:C.text,fontFamily:F.sans }}>{idea.title}</div>
@@ -1465,11 +1465,13 @@ const [selectedNiche,setSelectedNiche]=useState(null);
 const [retakeCount,setRetakeCount]=useState(0);
 const [abCell]=useState(()=>getABCell());
 const [isIN]=useState(()=>window.location.pathname==="/in");
+const [blueprint,setBlueprint]=useState(null);
 const topRef=useRef(null);
 
 const abConfig=AB_CELLS[abCell];
-const idea=DEMO.ideas[chosenIdx];
-const bundlePrice=Math.round((DEMO.projectedMonth3*0.02)/100)*100;
+const bp=blueprint||DEMO;
+const idea=bp.ideas[chosenIdx];
+const bundlePrice=Math.round((bp.projectedMonth3*0.02)/100)*100;
 const q=QUESTIONS[qIdx];
 
 useEffect(()=>{ Analytics.track("screen_viewed",{screen:view,ab_cell:abCell}); },[view]);
@@ -1499,8 +1501,15 @@ const handleQAnswer=val=>{
 Analytics.track("quiz_question_answered",{question_id:q.id,answer:val});
 const up={...answers,[q.id]:val};
 setAnswers(up); setTextVal(""); setMultiSel([]);
-if(qIdx<QUESTIONS.length-1) setQIdx(qIdx+1);
-else{ Analytics.track("quiz_completed",{mobile}); go(V.GATE); }
+if(qIdx<QUESTIONS.length-1){ setQIdx(qIdx+1); }
+else{
+  Analytics.track("quiz_completed",{mobile});
+  go(V.GENERATING);
+  fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({answers:up})})
+    .then(r=>r.ok?r.json():Promise.reject(r.status))
+    .then(bp=>{ setBlueprint(bp); go(V.GATE); })
+    .catch(()=>{ go(V.GATE); }); // falls back to DEMO on error
+}
 };
 
 const Phone=({children,noDots})=>(
@@ -1554,7 +1563,7 @@ if(view===V.LANDING) return (
           <div style={{fontSize:18,fontWeight:800,color:C.amber,letterSpacing:1,fontFamily:F.sans}}>⚡ bolt</div>
           <div style={{fontSize:9,color:C.dimmer,letterSpacing:2,fontFamily:F.sans}}>YOUR NEXT MOVE, BUILT</div>
         </div>
-        <button onClick={()=>setShowAdmin(true)} style={{background:"none",border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",color:C.dimmer,fontSize:10,cursor:"pointer",fontFamily:F.sans}}>Admin</button>
+        <button onClick={()=>setShowAdmin(true)} style={{display:"none"}}>Admin</button>
       </div>
       <div style={{animation:"fadeUp 0.5s ease",marginBottom:32}}>
         <h1 style={{fontFamily:F.serif,fontSize:34,fontWeight:400,color:C.text,lineHeight:1.15,margin:"0 0 18px",fontStyle:"italic"}}>
@@ -1566,7 +1575,7 @@ if(view===V.LANDING) return (
         <p style={{fontFamily:F.sans,fontSize:15,color:C.dim,lineHeight:1.7,margin:0}}>Bolt takes 14 questions about your expertise, goals, and constraints — and builds a personalised blueprint for your next income move. Not a listicle. A plan.</p>
       </div>
       <div style={{marginBottom:40,animation:"fadeUp 0.5s ease 0.15s both"}}>
-        <div style={{animation:"float 4s ease infinite"}}><ShareCard idea={DEMO.ideas[0]}/></div>
+        <div style={{animation:"float 4s ease infinite"}}><ShareCard idea={bp.ideas[0]}/></div>
         <div style={{textAlign:"center",marginTop:14}}>
           <span style={{fontSize:11,color:C.amber,background:"#0a0900",border:`1px solid ${C.amber}33`,borderRadius:99,padding:"6px 16px",fontFamily:F.sans}}>↑ Real blueprint · Blueprint #347</span>
         </div>
@@ -1685,7 +1694,6 @@ if(view===V.OTP) return (
 <div style={{fontSize:32,marginBottom:16}}>📱</div>
 <h2 style={{fontFamily:F.serif,fontSize:24,fontWeight:400,color:C.text,fontStyle:"italic",margin:"0 0 10px"}}>Check your messages.</h2>
 <p style={{fontFamily:F.sans,fontSize:14,color:C.dim,margin:0}}>OTP sent to +91 {mobileInput.slice(0,5)}XXXXX</p>
-<p style={{fontFamily:F.sans,fontSize:12,color:C.amber,margin:"8px 0 0"}}>Demo: use 1234</p>
 </div>
 <div style={{marginBottom:14}}>
 <input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={otpInput} onChange={e=>{setOtpInput(e.target.value.replace(/\D/g,"").slice(0,4));setOtpError("");}} onKeyDown={e=>e.key==="Enter"&&handleOtp()} placeholder="1 2 3 4" style={{width:"100%",background:C.surface,border:`1px solid ${otpError?C.red:C.border2}`,borderRadius:12,padding:"16px",color:C.text,fontSize:22,fontFamily:F.sans,outline:"none",textAlign:"center",letterSpacing:12}}/>
@@ -1748,25 +1756,40 @@ if(view===V.QUIZ) return (
 </Phone>
 );
 
+// - GENERATING -
+if(view===V.GENERATING) return (
+<Phone noDots>
+<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100vh",gap:0,padding:"0 32px",textAlign:"center"}}>
+  <div style={{fontSize:40,marginBottom:28,animation:"float 2s ease infinite"}}>⚡</div>
+  <h2 style={{fontFamily:F.serif,fontSize:24,fontWeight:400,color:C.text,fontStyle:"italic",margin:"0 0 12px",lineHeight:1.3}}>Building your blueprint...</h2>
+  <p style={{fontFamily:F.sans,fontSize:13,color:C.dim,lineHeight:1.7,margin:"0 0 40px"}}>Analysing {QUESTIONS.length} answers.<br/>Calibrating to the Indian market.</p>
+  <div style={{width:180,height:2,background:C.border,borderRadius:99,overflow:"hidden"}}>
+    <div style={{height:"100%",background:`linear-gradient(90deg,${C.amber},#e8410a)`,borderRadius:99,animation:"loadBar 2.5s ease-in-out infinite"}}/>
+  </div>
+  <style>{`@keyframes loadBar{0%{width:0%}60%{width:85%}100%{width:95%}}`}</style>
+</div>
+</Phone>
+);
+
 // - GATE -
 if(view===V.GATE) return (
 <Phone noDots>
 <Pad>
 <div style={{padding:"24px 0 0",display:"flex",justifyContent:"space-between",marginBottom:32}}>
 <div style={{fontSize:16,fontWeight:800,color:C.amber,fontFamily:F.sans}}>⚡ bolt</div>
-<div style={{fontSize:10,color:C.dimmer,fontFamily:F.sans}}>Blueprint #{DEMO.blueprintNumber}</div>
+<div style={{fontSize:10,color:C.dimmer,fontFamily:F.sans}}>Blueprint #{bp.blueprintNumber}</div>
 </div>
 <div style={{textAlign:"center",marginBottom:28}}>
-<ScoreArc score={DEMO.score} size={140}/>
-<div style={{fontSize:11,color:C.green,letterSpacing:3,textTransform:"uppercase",marginTop:12,fontFamily:F.sans}}>{DEMO.scoreLabel}</div>
+<ScoreArc score={bp.score} size={140}/>
+<div style={{fontSize:11,color:C.green,letterSpacing:3,textTransform:"uppercase",marginTop:12,fontFamily:F.sans}}>{bp.scoreLabel}</div>
 </div>
 <div style={{background:"#0c0a00",border:`1px solid ${C.amber}22`,borderRadius:14,padding:"18px 16px",marginBottom:28}}>
 <Label>Your positioning</Label>
-<p style={{fontFamily:F.serif,fontSize:15,color:"#ddd",lineHeight:1.65,margin:0,fontStyle:"italic"}}>"{DEMO.positioning}"</p>
+<p style={{fontFamily:F.serif,fontSize:15,color:"#ddd",lineHeight:1.65,margin:0,fontStyle:"italic"}}>"{bp.positioning}"</p>
 </div>
 <div style={{marginBottom:32}}>
 <Label>Your 3 ideas</Label>
-{DEMO.ideas.map((idea,i)=>(
+{bp.ideas.map((idea,i)=>(
 <div key={i} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px",filter:"blur(5px)",userSelect:"none",pointerEvents:"none",marginBottom:8}}>
 <div style={{fontSize:14,fontWeight:600,color:C.text,marginBottom:2,fontFamily:F.sans}}>{idea.title}</div>
 <div style={{fontSize:12,color:C.dim,fontFamily:F.sans}}>{idea.monthly}/month</div>
@@ -1789,7 +1812,7 @@ if(view===V.WELCOME) return (
 <Pad>
 <div style={{textAlign:"center",padding:"32px 0 24px"}}>
 <div style={{fontSize:9,letterSpacing:3,color:C.amber,textTransform:"uppercase",marginBottom:14,fontFamily:F.sans}}>⚡ bolt</div>
-<div style={{fontSize:52,fontWeight:800,color:C.text,lineHeight:1,marginBottom:6,fontFamily:F.sans}}>#{DEMO.blueprintNumber}</div>
+<div style={{fontSize:52,fontWeight:800,color:C.text,lineHeight:1,marginBottom:6,fontFamily:F.sans}}>#{bp.blueprintNumber}</div>
 <div style={{fontSize:12,color:C.dim,letterSpacing:1,fontFamily:F.sans}}>Your Blueprint Number</div>
 </div>
 <div style={{background:"#060f06",border:`1px solid ${C.wa}33`,borderRadius:16,padding:"20px 16px",marginBottom:22}}>
@@ -1799,10 +1822,10 @@ if(view===V.WELCOME) return (
 </div>
 <p style={{fontSize:13,color:C.muted,lineHeight:1.6,margin:"0 0 12px",fontFamily:F.sans}}>Every time someone buys using your link, ₹150 comes back to you. No cap.</p>
 <div style={{background:"#0a1a0a",borderRadius:8,padding:"10px 12px",marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-<span style={{fontSize:11,color:C.green,fontFamily:"monospace"}}>bolt.in/r/{DEMO.referralCode}</span>
-<button onClick={()=>{copy(`https://bolt.in/r/${DEMO.referralCode}`,setCopied);Analytics.track("referral_link_copied",{location:"welcome"});}} style={{background:"none",border:`1px solid ${C.wa}44`,borderRadius:6,padding:"4px 10px",color:C.wa,fontSize:11,cursor:"pointer",fontFamily:F.sans}}>{copied?"✓":"Copy"}</button>
+<span style={{fontSize:11,color:C.green,fontFamily:"monospace"}}>bolt.in/r/{bp.referralCode}</span>
+<button onClick={()=>{copy(`https://bolt.in/r/${bp.referralCode}`,setCopied);Analytics.track("referral_link_copied",{location:"welcome"});}} style={{background:"none",border:`1px solid ${C.wa}44`,borderRadius:6,padding:"4px 10px",color:C.wa,fontSize:11,cursor:"pointer",fontFamily:F.sans}}>{copied?"✓":"Copy"}</button>
 </div>
-<Btn bg={C.wa} onClick={()=>{window.open(`https://wa.me/?text=${encodeURIComponent(`Just built my Blueprint on Bolt — mapped my next income move in 5 mins. Blueprint #${DEMO.blueprintNumber}. Get yours: https://bolt.in/r/${DEMO.referralCode}`)}`, "_blank");Analytics.track("referral_share_sent",{platform:"whatsapp",location:"welcome"});}} style={{fontSize:13,padding:"12px"}}>
+<Btn bg={C.wa} onClick={()=>{window.open(`https://wa.me/?text=${encodeURIComponent(`Just built my Blueprint on Bolt — mapped my next income move in 5 mins. Blueprint #${bp.blueprintNumber}. Get yours: https://bolt.in/r/${bp.referralCode}`)}`, "_blank");Analytics.track("referral_share_sent",{platform:"whatsapp",location:"welcome"});}} style={{fontSize:13,padding:"12px"}}>
 Share on WhatsApp →
 </Btn>
 </div>
@@ -1822,25 +1845,25 @@ if(view===V.DECISION) return (
 </div>
 <div style={{background:"#0b0a00",border:`1px solid ${C.amber}55`,borderRadius:16,padding:"20px 16px",marginBottom:12,position:"relative"}}>
 <div style={{position:"absolute",top:-10,right:14,background:C.amber,color:C.bg,fontSize:9,fontWeight:800,letterSpacing:1.5,padding:"3px 12px",borderRadius:99,fontFamily:F.sans}}>BEST MATCH</div>
-<div style={{fontFamily:F.sans,fontSize:17,fontWeight:700,color:C.text,marginBottom:6}}>{DEMO.ideas[0].title}</div>
-<div style={{fontFamily:F.serif,fontSize:14,color:C.muted,fontStyle:"italic",marginBottom:14,lineHeight:1.5}}>{DEMO.ideas[0].tagline}</div>
+<div style={{fontFamily:F.sans,fontSize:17,fontWeight:700,color:C.text,marginBottom:6}}>{bp.ideas[0].title}</div>
+<div style={{fontFamily:F.serif,fontSize:14,color:C.muted,fontStyle:"italic",marginBottom:14,lineHeight:1.5}}>{bp.ideas[0].tagline}</div>
 <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}>
-<div style={{fontSize:14,color:C.green,fontWeight:700,fontFamily:F.sans}}>{DEMO.ideas[0].monthly}</div>
-<div style={{fontSize:11,color:C.dim,fontFamily:F.sans}}>{DEMO.ideas[0].timeToFirst} to first ₹</div>
+<div style={{fontSize:14,color:C.green,fontWeight:700,fontFamily:F.sans}}>{bp.ideas[0].monthly}</div>
+<div style={{fontSize:11,color:C.dim,fontFamily:F.sans}}>{bp.ideas[0].timeToFirst} to first ₹</div>
 </div>
-<Btn onClick={()=>{setChosenIdx(0);Analytics.track("idea_chosen",{idea_title:DEMO.ideas[0].title});go(V.COMMITMENT);}}>This Is My Move →</Btn>
+<Btn onClick={()=>{setChosenIdx(0);Analytics.track("idea_chosen",{idea_title:bp.ideas[0].title});go(V.COMMITMENT);}}>This Is My Move →</Btn>
 </div>
 <div style={{fontSize:10,color:"#2a2a2a",textAlign:"center",margin:"8px 0",letterSpacing:1,fontFamily:F.sans}}>OR CONSIDER</div>
 {[1,2].map(i=>(
 <div key={i} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px",marginBottom:10}}>
 <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
 <div style={{flex:1,paddingRight:10}}>
-<div style={{fontFamily:F.sans,fontSize:14,fontWeight:600,color:"#aaa",marginBottom:3}}>{DEMO.ideas[i].title}</div>
-<div style={{fontFamily:F.serif,fontSize:12,color:C.dim,fontStyle:"italic"}}>{DEMO.ideas[i].tagline}</div>
+<div style={{fontFamily:F.sans,fontSize:14,fontWeight:600,color:"#aaa",marginBottom:3}}>{bp.ideas[i].title}</div>
+<div style={{fontFamily:F.serif,fontSize:12,color:C.dim,fontStyle:"italic"}}>{bp.ideas[i].tagline}</div>
 </div>
-<div style={{fontSize:13,color:`${C.green}66`,fontWeight:600,flexShrink:0,fontFamily:F.sans}}>{DEMO.ideas[i].monthly}</div>
+<div style={{fontSize:13,color:`${C.green}66`,fontWeight:600,flexShrink:0,fontFamily:F.sans}}>{bp.ideas[i].monthly}</div>
 </div>
-<OutlineBtn onClick={()=>{setChosenIdx(i);Analytics.track("idea_chosen",{idea_title:DEMO.ideas[i].title});go(V.COMMITMENT);}} style={{borderRadius:8,padding:"9px",fontSize:12}}>Choose This Instead</OutlineBtn>
+<OutlineBtn onClick={()=>{setChosenIdx(i);Analytics.track("idea_chosen",{idea_title:bp.ideas[i].title});go(V.COMMITMENT);}} style={{borderRadius:8,padding:"9px",fontSize:12}}>Choose This Instead</OutlineBtn>
 </div>
 ))}
 <div style={{height:40}}/>
@@ -1863,7 +1886,7 @@ if(view===V.COMMITMENT) return (
 <div style={{background:C.bg,borderRadius:10,padding:"12px 14px",marginBottom:14,border:`1px solid ${C.border}`}}>
 <p style={{fontFamily:F.sans,fontSize:13,color:C.muted,lineHeight:1.65,margin:0,fontStyle:"italic"}}>"Just figured out my next income move using Bolt. Building {idea.title} — {idea.tagline} Starting this week 🎯"</p>
 </div>
-<Btn bg={C.wa} onClick={()=>{window.open(`https://wa.me/?text=${encodeURIComponent(`Just figured out my next income move using Bolt. Building "${idea.title}" — ${idea.tagline} Starting this week 🎯\n\nGet your blueprint: https://bolt.in/r/${DEMO.referralCode}`)}`, "_blank");Analytics.track("commitment_share_sent",{idea_title:idea.title});}} style={{fontSize:13,padding:"13px"}}>
+<Btn bg={C.wa} onClick={()=>{window.open(`https://wa.me/?text=${encodeURIComponent(`Just figured out my next income move using Bolt. Building "${idea.title}" — ${idea.tagline} Starting this week 🎯\n\nGet your blueprint: https://bolt.in/r/${bp.referralCode}`)}`, "_blank");Analytics.track("commitment_share_sent",{idea_title:idea.title});}} style={{fontSize:13,padding:"13px"}}>
 Send on WhatsApp →
 </Btn>
 </div>
@@ -1998,7 +2021,7 @@ if(view===V.ROADMAP) return (
 <div style={{width:3,background:C.green,borderRadius:2,flexShrink:0}}/>
 <div style={{flex:1}}>
 <div style={{fontSize:9,color:C.green,letterSpacing:2,textTransform:"uppercase",marginBottom:12,fontFamily:F.sans}}>Week 1</div>
-{DEMO.week1.map((t,i)=>(
+{bp.week1.map((t,i)=>(
 <div key={i} style={{display:"flex",gap:10,marginBottom:12,alignItems:"flex-start"}}>
 <div style={{width:20,height:20,borderRadius:"50%",border:`1px solid ${C.green}44`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
 <div style={{fontSize:9,color:C.green,fontFamily:F.sans}}>{i+1}</div>
@@ -2009,7 +2032,7 @@ if(view===V.ROADMAP) return (
 </div>
 </div>
 </div>
-{[["Week 2",DEMO.week2,C.blue],["Week 3",DEMO.week3,"#c084fc"],["Week 4",DEMO.week4,C.amber]].map(([lbl,task,clr])=>(
+{[["Week 2",bp.week2,C.blue],["Week 3",bp.week3,"#c084fc"],["Week 4",bp.week4,C.amber]].map(([lbl,task,clr])=>(
 <div key={lbl} style={{display:"flex",gap:14,marginBottom:14}}>
 <div style={{width:3,background:clr,borderRadius:2,flexShrink:0,opacity:0.35}}/>
 <div style={{flex:1}}>
@@ -2024,7 +2047,7 @@ if(view===V.ROADMAP) return (
 <div style={{fontSize:9,color:C.blue,letterSpacing:2.5,textTransform:"uppercase",marginBottom:14,fontFamily:F.sans}}>Full Bundle</div>
 <div style={{textAlign:"center",marginBottom:18}}>
 <div style={{fontFamily:F.sans,fontSize:12,color:C.dimmer,marginBottom:6}}>{idea.title} projects</div>
-<div style={{fontFamily:F.sans,fontSize:26,fontWeight:800,color:C.green}}>₹{(DEMO.projectedMonth3/100000).toFixed(1)}L/month</div>
+<div style={{fontFamily:F.sans,fontSize:26,fontWeight:800,color:C.green}}>₹{(bp.projectedMonth3/100000).toFixed(1)}L/month</div>
 <div style={{fontFamily:F.sans,fontSize:11,color:C.dimmer,margin:"4px 0 12px"}}>by month 3</div>
 <div style={{height:1,background:C.border,margin:"12px 0"}}/>
 <div style={{fontFamily:F.sans,fontSize:11,color:C.dim,marginBottom:4}}>Full Bundle = 2% of that → one time</div>
@@ -2039,7 +2062,7 @@ if(view===V.ROADMAP) return (
 <Btn bg={C.text} color={C.bg} onClick={()=>{setBundleBought(true);Analytics.track("full_bundle_converted",{price:bundlePrice,ab_cell:abCell});}} style={{fontWeight:800,marginTop:14}}>
 Get Full Bundle — ₹{bundlePrice.toLocaleString("en-IN")} →
 </Btn>
-<div style={{textAlign:"center",marginTop:8,fontFamily:F.sans,fontSize:11,color:C.dimmer}}>2% to potentially unlock ₹{(DEMO.projectedMonth3/100000).toFixed(1)}L/month</div>
+<div style={{textAlign:"center",marginTop:8,fontFamily:F.sans,fontSize:11,color:C.dimmer}}>2% to potentially unlock ₹{(bp.projectedMonth3/100000).toFixed(1)}L/month</div>
 </div>
 ):(
 <div style={{background:"#060f06",border:"1px solid #4ade8033",borderRadius:14,padding:"20px",textAlign:"center"}}>
@@ -2062,14 +2085,14 @@ if(view===V.SHARE) return (
 <h2 style={{fontFamily:F.serif,fontSize:20,fontWeight:400,color:C.text,lineHeight:1.3,margin:"0 0 6px",fontStyle:"italic"}}>Screenshot and share.</h2>
 <p style={{fontFamily:F.sans,fontSize:13,color:C.dimmer,margin:0}}>Every share earns ₹150 when someone buys.</p>
 </div>
-<div style={{marginBottom:18}}><ShareCard idea={idea}/></div>
+<div style={{marginBottom:18}}><ShareCard idea={idea} score={bp.score} positioning={bp.positioning} blueprintNumber={bp.blueprintNumber}/></div>
 <div style={{display:"flex",flexDirection:"column",gap:10}}>
-<Btn bg={C.wa} onClick={()=>{window.open(`https://wa.me/?text=${encodeURIComponent(`⚡ *Bolt Blueprint #${DEMO.blueprintNumber}*\n\n_"${DEMO.positioning}"_\n\n🎯 *My next move:* ${idea.title}\n"${idea.tagline}"\n\n📈 ${idea.monthly}/month projected\n\n→ Get yours: https://bolt.in/r/${DEMO.referralCode}`)}`, "_blank");setWaSent(true);Analytics.track("share_card_sent",{platform:"whatsapp"});}} style={{fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+<Btn bg={C.wa} onClick={()=>{window.open(`https://wa.me/?text=${encodeURIComponent(`⚡ *Bolt Blueprint #${bp.blueprintNumber}*\n\n_"${bp.positioning}"_\n\n🎯 *My next move:* ${idea.title}\n"${idea.tagline}"\n\n📈 ${idea.monthly}/month projected\n\n→ Get yours: https://bolt.in/r/${bp.referralCode}`)}`, "_blank");setWaSent(true);Analytics.track("share_card_sent",{platform:"whatsapp"});}} style={{fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
 <svg width="15" height="15" viewBox="0 0 24 24" fill={C.bg}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 {waSent?"✓ Sent · ₹150 pending":"Share on WhatsApp"}
 </Btn>
-<OutlineBtn onClick={()=>{copy(`https://bolt.in/r/${DEMO.referralCode}`,setCopied);Analytics.track("referral_link_copied",{location:"share"});}} style={{borderRadius:12,padding:"14px",fontSize:12}}>
-{copied?"✓ Link Copied":`Copy Referral — bolt.in/r/${DEMO.referralCode}`}
+<OutlineBtn onClick={()=>{copy(`https://bolt.in/r/${bp.referralCode}`,setCopied);Analytics.track("referral_link_copied",{location:"share"});}} style={{borderRadius:12,padding:"14px",fontSize:12}}>
+{copied?"✓ Link Copied":`Copy Referral — bolt.in/r/${bp.referralCode}`}
 </OutlineBtn>
 </div>
 <Divider/>
@@ -2089,7 +2112,7 @@ if(view===V.SHARE) return (
 <div style={{fontFamily:F.sans,fontSize:9,color:"#2a2a2a",letterSpacing:2}}>YOUR NEXT MOVE, BUILT</div>
 </div>
 <OutlineBtn onClick={()=>{setView(V.LANDING);setQIdx(0);setAnswers({});setChosenIdx(0);setPromptBought(false);setBundleBought(false);setWaSent(false);setMobileInput("");setOtpInput("");}} style={{borderRadius:10,marginBottom:10}}>← Start Over</OutlineBtn>
-<button onClick={()=>setShowAdmin(true)} style={{width:"100%",background:"none",border:`1px solid ${C.border}`,borderRadius:10,padding:"10px",color:C.dimmer,fontSize:12,cursor:"pointer",fontFamily:F.sans,marginBottom:8}}>View Analytics Dashboard</button>
+<button onClick={()=>setShowAdmin(true)} style={{display:"none"}}>View Analytics Dashboard</button>
 <div style={{height:40}}/>
 </Pad>
 {showAdmin&&<AdminDashboard onClose={()=>setShowAdmin(false)} mobile={mobile}/>}
