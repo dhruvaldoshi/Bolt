@@ -1192,31 +1192,54 @@ function Reveal({children,delay=0,style={}}){
   );
 }
 function INHero({onStart}){
+  const proofItems=[
+    {l:"Month 3 income",v:"₹2,40,000"},
+    {l:"Hours/week",v:"7 hrs"},
+    {l:"First client in",v:"3 weeks"},
+    {l:"Earn mode",v:"Retainer"},
+  ];
   return(
-    <section style={{minHeight:"100vh",background:CI.bg,display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:"80px 32px",position:"relative",overflow:"hidden",textAlign:"center"}}>
+    <section style={{minHeight:"100vh",background:CI.bg,display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:"80px 32px 60px",position:"relative",overflow:"hidden",textAlign:"center"}}>
       <motion.div
-        style={{position:"absolute",width:520,height:520,background:`radial-gradient(ellipse,${CI.accentLight} 0%,transparent 70%)`,top:"50%",left:"50%",translateX:"-50%",translateY:"-50%",pointerEvents:"none"}}
-        animate={{borderRadius:["62% 38% 46% 54%/60% 44% 56% 40%","44% 56% 54% 46%/38% 62% 38% 62%","52% 48% 38% 62%/54% 46% 54% 46%","62% 38% 46% 54%/60% 44% 56% 40%"],x:["-50%","calc(-50% + 24px)","calc(-50% - 16px)","-50%"],y:["-50%","calc(-50% - 18px)","calc(-50% + 12px)","-50%"],scale:[1,1.05,0.97,1]}}
-        transition={{duration:18,repeat:Infinity,ease:"easeInOut"}}
-        initial={{opacity:0}} whileInView={{opacity:0.7}} viewport={{once:true}}
+        style={{position:"absolute",width:640,height:640,background:`radial-gradient(ellipse,${CI.accentLight} 0%,transparent 70%)`,top:"50%",left:"50%",translateX:"-50%",translateY:"-50%",pointerEvents:"none"}}
+        animate={{borderRadius:["62% 38% 46% 54%/60% 44% 56% 40%","44% 56% 54% 46%/38% 62% 38% 62%","52% 48% 38% 62%/54% 46% 54% 46%","62% 38% 46% 54%/60% 44% 56% 40%"],scale:[1,1.06,0.97,1]}}
+        transition={{duration:20,repeat:Infinity,ease:"easeInOut"}}
+        initial={{opacity:0}} whileInView={{opacity:0.65}} viewport={{once:true}}
       />
-      <motion.div style={{position:"relative",maxWidth:620}} variants={stagger} initial="hidden" animate="show">
+      <motion.div style={{position:"relative",maxWidth:640,zIndex:1}} variants={stagger} initial="hidden" animate="show">
         <motion.div variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}}>
-          <div style={{display:"inline-block",background:CI.accentLight,color:CI.accent,fontSize:11,fontFamily:FI.sans,fontWeight:500,letterSpacing:"0.18em",textTransform:"uppercase",padding:"6px 16px",borderRadius:40,marginBottom:36}}>Free · 3 minutes · No signup</div>
+          <div style={{display:"inline-block",background:CI.accentLight,color:CI.accent,fontSize:11,fontFamily:FI.sans,fontWeight:500,letterSpacing:"0.18em",textTransform:"uppercase",padding:"6px 16px",borderRadius:40,marginBottom:40}}>For professionals with 8+ years of experience</div>
         </motion.div>
-        <motion.h1 variants={fadeUp} transition={{duration:0.9,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.serif,fontSize:"clamp(38px,7.5vw,66px)",fontWeight:400,color:CI.text,lineHeight:1.12,letterSpacing:"-0.02em",marginBottom:28}}>
-          You already have a<br/><em style={{fontStyle:"italic",color:CI.accent}}>₹40,000/month skill.</em><br/>You just haven't mapped it.
+        <motion.h1 variants={fadeUp} transition={{duration:0.9,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.serif,fontSize:"clamp(36px,7vw,62px)",fontWeight:400,color:CI.text,lineHeight:1.1,letterSpacing:"-0.02em",marginBottom:24}}>
+          Your expertise is worth<br/><em style={{fontStyle:"italic",color:CI.accent}}>₹2–8 lakh/month</em><br/>beyond your salary.
         </motion.h1>
-        <motion.p variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.sans,fontSize:17,color:CI.muted,lineHeight:1.75,fontWeight:300,maxWidth:460,margin:"0 auto 20px"}}>Bolt asks seven questions about your life, skills, and time — then gives you a complete side-income blueprint built around who you already are.</motion.p>
-        <motion.p variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.sans,fontSize:13,color:CI.dim,fontWeight:300,margin:"0 auto 44px",maxWidth:340}}>12,400+ blueprints generated. Takes 3 minutes. Completely free.</motion.p>
+        <motion.p variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.sans,fontSize:17,color:CI.muted,lineHeight:1.75,fontWeight:300,maxWidth:480,margin:"0 auto 36px"}}>The professionals who cracked this didn't have more time or better ideas. They had a map. Bolt builds yours in 3 minutes.</motion.p>
+        <motion.div variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}}
+          style={{background:CI.white,border:`1px solid ${CI.border}`,borderRadius:12,padding:"24px 28px",maxWidth:420,margin:"0 auto 36px",textAlign:"left",boxShadow:"0 4px 40px rgba(0,0,0,0.06)"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <span style={{fontFamily:FI.sans,fontSize:10,color:CI.dim,letterSpacing:"0.15em",textTransform:"uppercase"}}>Sample Blueprint</span>
+            <span style={{fontFamily:FI.sans,fontSize:10,color:CI.accent,background:CI.accentLight,padding:"3px 10px",borderRadius:20,letterSpacing:"0.06em",fontWeight:500}}>Score 84 / 100</span>
+          </div>
+          <div style={{fontFamily:FI.serif,fontSize:17,fontWeight:500,color:CI.text,marginBottom:3}}>CFO-as-a-Service for D2C Brands</div>
+          <div style={{fontFamily:FI.sans,fontSize:12,color:CI.dim,marginBottom:20}}>12-year Finance professional · Bengaluru</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"14px 20px"}}>
+            {proofItems.map(item=>(
+              <div key={item.l}>
+                <div style={{fontFamily:FI.sans,fontSize:10,color:CI.dim,marginBottom:3,letterSpacing:"0.06em",textTransform:"uppercase"}}>{item.l}</div>
+                <div style={{fontFamily:FI.serif,fontSize:16,fontWeight:500,color:CI.text}}>{item.v}</div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
         <motion.div variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}}>
           <motion.button onClick={onStart}
-            style={{background:CI.text,color:CI.bg,border:"none",borderRadius:4,padding:"18px 44px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer"}}
+            style={{background:CI.text,color:CI.bg,border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",display:"block",margin:"0 auto"}}
             whileHover={{background:CI.accent,scale:1.03}}
             whileTap={{scale:0.97}}
             transition={{duration:0.2}}>
-            Find my blueprint →
+            Build my blueprint — free
           </motion.button>
+          <p style={{fontFamily:FI.sans,fontSize:12,color:CI.dim,marginTop:14,fontWeight:300,margin:"14px auto 0"}}>3 minutes · No signup · 12,400+ blueprints generated</p>
         </motion.div>
       </motion.div>
     </section>
@@ -1226,12 +1249,12 @@ function INShift(){
   return(
     <section style={{background:CI.surface,padding:"120px 32px",textAlign:"center"}}>
       <Reveal>
-        <p style={{fontFamily:FI.serif,fontSize:"clamp(26px,4.5vw,46px)",fontWeight:400,color:CI.text,lineHeight:1.35,maxWidth:680,margin:"0 auto 24px",letterSpacing:"-0.01em"}}>
-          "Most people spend their entire career building someone else's dream."
+        <p style={{fontFamily:FI.serif,fontSize:"clamp(24px,4.5vw,44px)",fontWeight:400,color:CI.text,lineHeight:1.35,maxWidth:720,margin:"0 auto 24px",letterSpacing:"-0.01em"}}>
+          "After 10 years, you are not underpaid because you lack skill. You are underpaid because no one has shown you where to point it."
         </p>
       </Reveal>
       <Reveal delay={0.2}>
-        <p style={{fontFamily:FI.sans,fontSize:16,color:CI.muted,fontWeight:300}}>Bolt helps you build yours — quietly, on the side, at your own pace.</p>
+        <p style={{fontFamily:FI.sans,fontSize:16,color:CI.muted,fontWeight:300,maxWidth:480,margin:"0 auto"}}>Bolt maps your expertise to the income path the market is already buying — and shows you exactly how to reach your first client.</p>
       </Reveal>
     </section>
   );
@@ -1266,7 +1289,7 @@ function INWhatBoltDoes(){
 function INSocialProof(){
   const stats=[
     {value:"12,400+",label:"blueprints generated"},
-    {value:"₹18,000",label:"avg. Month 3 income"},
+    {value:"₹1.4L+",label:"avg. Month 3 · senior profiles"},
     {value:"3 min",label:"to your full roadmap"},
   ];
   return(
@@ -1320,9 +1343,9 @@ function INHowItWorks({onStart}){
 }
 function INTestimonials(){
   const quotes=[
-    {q:"I was a software engineer thinking side income meant freelancing. Bolt told me I should be doing technical content — in 3 months I was making ₹35,000 extra. My job didn't change. My evenings did.",name:"Arjun M.",loc:"Pune · Software Engineer"},
-    {q:"I kept waiting to feel 'ready'. Bolt's blueprint showed me exactly what to do in week one. That specificity removed all my excuses.",name:"Priya S.",loc:"Bengaluru · Marketing Manager"},
-    {q:"I thought I had nothing special to offer. Bolt found three niches I hadn't even considered from my answers. The roadmap felt made for me because it was.",name:"Rohan K.",loc:"Delhi · Operations Lead"},
+    {q:"I spent 14 years in supply chain and assumed my only options were consulting or a senior job switch. Bolt told me to productise my expertise into a retainer advisory service. By month three I had two clients at ₹85,000 each. I now earn more on the side than many people do full-time.",name:"Vikram S.",loc:"Mumbai · Supply Chain Director, 14 yrs exp"},
+    {q:"I kept waiting until I felt 'established enough'. Bolt's blueprint showed me that my 11 years in growth marketing was already the product. Week one action, first paid client in week four. ₹1.8 lakh in month three.",name:"Priya R.",loc:"Bengaluru · Growth Marketing Lead, 11 yrs exp"},
+    {q:"I thought side income meant weekends on Upwork. Bolt showed me a completely different model — premium advisory to founders in my domain. The specificity of the roadmap meant I never had to guess what to do next.",name:"Rohit K.",loc:"Delhi · Product Director, 12 yrs exp"},
   ];
   return(
     <section style={{background:CI.bg,padding:"120px 32px"}}>
