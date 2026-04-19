@@ -1505,7 +1505,7 @@ if(count>=2) go(V.RETAKE_GATE); else go(V.OTP);
 };
 
 const handleOtp=()=>{
-if(otpInput!=="1234"){ setOtpError("Incorrect OTP. Please try again."); return; }
+if(otpInput.replace(/\D/g,"")!=="1234"){ setOtpError("Incorrect OTP. Please try again."); return; }
 Analytics.track("otp_verified",{mobile});
 if(!UserState.get(mobile)) UserState.set(mobile,{mobile_number:mobile,retake_count:0,blueprints:[],referral_code:`BOLT-${mobile.slice(-4).toUpperCase()}`,ab_cell:abCell});
 Analytics.track("quiz_started",{mobile});
@@ -1722,7 +1722,7 @@ if(view===V.MOBILE) return (
 <div style={{marginBottom:14}}>
 <div style={{display:"flex",background:C.surface,border:`1px solid ${C.border2}`,borderRadius:12,overflow:"hidden"}}>
 <div style={{padding:"0 16px",background:"#0e0e0e",borderRight:`1px solid ${C.border2}`,display:"flex",alignItems:"center",fontSize:14,color:C.muted,fontFamily:F.sans,flexShrink:0}}>🇮🇳 +91</div>
-<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={10} value={mobileInput} onChange={e=>setMobileInput(e.target.value.replace(/\D/g,"").slice(0,10))} onKeyDown={e=>e.key==="Enter"&&handleMobile()} placeholder="10-digit mobile number" style={{flex:1,background:"transparent",border:"none",padding:"16px",color:C.text,fontSize:16,fontFamily:F.sans,outline:"none"}}/>
+<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={10} value={mobileInput} onChange={e=>setMobileInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleMobile()} placeholder="10-digit mobile number" style={{flex:1,background:"transparent",border:"none",padding:"16px",color:C.text,fontSize:16,fontFamily:F.sans,outline:"none"}}/>
 </div>
 </div>
 <Btn onClick={handleMobile} style={{marginBottom:14}}>Send OTP →</Btn>
@@ -1753,7 +1753,7 @@ if(view===V.OTP) return (
 <p style={{fontFamily:F.sans,fontSize:14,color:C.dim,margin:0}}>OTP sent to +91 {mobileInput.slice(0,5)}XXXXX</p>
 </div>
 <div style={{marginBottom:14}}>
-<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={otpInput} onChange={e=>{setOtpInput(e.target.value.replace(/\D/g,"").slice(0,4));setOtpError("");}} onKeyDown={e=>e.key==="Enter"&&handleOtp()} placeholder="1 2 3 4" style={{width:"100%",background:C.surface,border:`1px solid ${otpError?C.red:C.border2}`,borderRadius:12,padding:"16px",color:C.text,fontSize:22,fontFamily:F.sans,outline:"none",textAlign:"center",letterSpacing:12}}/>
+<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={otpInput} onChange={e=>{setOtpInput(e.target.value);setOtpError("");}} onKeyDown={e=>e.key==="Enter"&&handleOtp()} placeholder="· · · ·" style={{width:"100%",background:C.surface,border:`1px solid ${otpError?C.red:C.border2}`,borderRadius:12,padding:"16px",color:C.text,fontSize:28,fontFamily:F.sans,outline:"none",textAlign:"center",letterSpacing:16}}/>
 {otpError&&<div style={{fontSize:12,color:C.red,textAlign:"center",marginTop:8,fontFamily:F.sans}}>{otpError}</div>}
 </div>
 <Btn onClick={handleOtp} style={{marginBottom:14}}>Verify & Continue →</Btn>
