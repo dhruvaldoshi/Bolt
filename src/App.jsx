@@ -754,6 +754,7 @@ return (
 
 );
 }
+
 // - ADMIN DASHBOARD -
 function AdminDashboard({ onClose, mobile }) {
 const [tab,setTab]=useState("overview");
@@ -1153,6 +1154,214 @@ return (
 );
 }
 
+// - INDIA LANDING PAGE -
+const CI={
+  bg:"#fdfaf6",surface:"#f7f3ee",border:"#e8e0d5",
+  text:"#1a1612",muted:"#6b5f52",dim:"#a89a8c",
+  accent:"#c9893f",accentLight:"#f5e6d0",white:"#ffffff",
+};
+const FI={serif:"'Playfair Display',Georgia,serif",sans:"Inter,-apple-system,sans-serif"};
+(()=>{
+  if(typeof document==="undefined"||document.getElementById("bolt-in-fonts"))return;
+  const l=document.createElement("link");l.id="bolt-in-fonts";l.rel="stylesheet";
+  l.href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@300;400;500&display=swap";
+  document.head.appendChild(l);
+})();
+(()=>{
+  if(typeof document==="undefined"||document.getElementById("bolt-in-styles"))return;
+  const s=document.createElement("style");s.id="bolt-in-styles";
+  s.textContent=`
+    @keyframes fadeUpHero{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes driftOrb{0%,100%{transform:translate(-50%,-50%) scale(1)}33%{transform:translate(calc(-50% + 24px),calc(-50% - 18px)) scale(1.05)}66%{transform:translate(calc(-50% - 16px),calc(-50% + 12px)) scale(0.97)}}
+    @keyframes morphShape{0%,100%{border-radius:62% 38% 46% 54%/60% 44% 56% 40%}25%{border-radius:44% 56% 54% 46%/38% 62% 38% 62%}50%{border-radius:52% 48% 38% 62%/54% 46% 54% 46%}75%{border-radius:38% 62% 48% 52%/46% 54% 46% 54%}}
+  `;
+  document.head.appendChild(s);
+})();
+function useInView(threshold=0.15){
+  const ref=useRef(null);
+  const [visible,setVisible]=useState(false);
+  useEffect(()=>{
+    const el=ref.current;if(!el)return;
+    const obs=new IntersectionObserver(([e])=>{if(e.isIntersecting)setVisible(true);},{threshold});
+    obs.observe(el);return()=>obs.disconnect();
+  },[threshold]);
+  return[ref,visible];
+}
+function useScrollProgress(){
+  const[p,setP]=useState(0);
+  useEffect(()=>{
+    const fn=()=>{const el=document.documentElement;const s=el.scrollTop||document.body.scrollTop;const m=el.scrollHeight-el.clientHeight;setP(m>0?s/m:0);};
+    window.addEventListener("scroll",fn,{passive:true});return()=>window.removeEventListener("scroll",fn);
+  },[]);
+  return p;
+}
+function Reveal({children,delay=0,style={}}){
+  const[ref,visible]=useInView();
+  return(
+    <div ref={ref} style={{opacity:visible?1:0,transform:visible?"translateY(0)":"translateY(36px)",transition:`opacity 0.8s ease ${delay}s,transform 0.8s ease ${delay}s`,...style}}>
+      {children}
+    </div>
+  );
+}
+function INHero({onStart}){
+  return(
+    <section style={{minHeight:"100vh",background:CI.bg,display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:"80px 32px",position:"relative",overflow:"hidden",textAlign:"center"}}>
+      <div style={{position:"absolute",width:520,height:520,background:`radial-gradient(ellipse,${CI.accentLight} 0%,transparent 70%)`,borderRadius:"62% 38% 46% 54%/60% 44% 56% 40%",animation:"morphShape 14s ease-in-out infinite,driftOrb 18s ease-in-out infinite",top:"50%",left:"50%",pointerEvents:"none",opacity:0.7}}/>
+      <div style={{position:"relative",maxWidth:620,animation:"fadeUpHero 1.2s ease both"}}>
+        <div style={{display:"inline-block",background:CI.accentLight,color:CI.accent,fontSize:11,fontFamily:FI.sans,fontWeight:500,letterSpacing:"0.18em",textTransform:"uppercase",padding:"6px 16px",borderRadius:40,marginBottom:36}}>Your path begins here</div>
+        <h1 style={{fontFamily:FI.serif,fontSize:"clamp(40px,8vw,68px)",fontWeight:400,color:CI.text,lineHeight:1.15,letterSpacing:"-0.02em",marginBottom:28}}>
+          The income stream<br/><em style={{fontStyle:"italic",color:CI.accent}}>you already have</em><br/>in you.
+        </h1>
+        <p style={{fontFamily:FI.sans,fontSize:17,color:CI.muted,lineHeight:1.75,fontWeight:300,maxWidth:440,margin:"0 auto 48px"}}>Answer seven questions. Get your complete blueprint in under three minutes.</p>
+        <button onClick={onStart} style={{background:CI.text,color:CI.bg,border:"none",borderRadius:4,padding:"18px 44px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",transition:"all 0.3s ease"}}
+          onMouseEnter={e=>{e.currentTarget.style.background=CI.accent;}}
+          onMouseLeave={e=>{e.currentTarget.style.background=CI.text;}}>
+          Discover your blueprint
+        </button>
+      </div>
+    </section>
+  );
+}
+function INShift(){
+  return(
+    <section style={{background:CI.surface,padding:"120px 32px",textAlign:"center"}}>
+      <Reveal>
+        <p style={{fontFamily:FI.serif,fontSize:"clamp(26px,4.5vw,46px)",fontWeight:400,color:CI.text,lineHeight:1.35,maxWidth:680,margin:"0 auto 24px",letterSpacing:"-0.01em"}}>
+          "Most people spend their entire career building someone else's dream."
+        </p>
+      </Reveal>
+      <Reveal delay={0.2}>
+        <p style={{fontFamily:FI.sans,fontSize:16,color:CI.muted,fontWeight:300}}>Bolt helps you build yours — quietly, on the side, at your own pace.</p>
+      </Reveal>
+    </section>
+  );
+}
+function INWhatBoltDoes(){
+  const items=[
+    {n:"01",title:"Finds your fit",body:"We map your skills, time, and income goal to real micro-niches — not generic advice."},
+    {n:"02",title:"Builds your roadmap",body:"A step-by-step 90-day plan, tailored to how much time you actually have."},
+    {n:"03",title:"Shows real numbers",body:"Honest projections: Month 1, 3, and 12 — based on people doing it right now."},
+  ];
+  return(
+    <section style={{background:CI.bg,padding:"120px 32px",maxWidth:760,margin:"0 auto"}}>
+      <Reveal>
+        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:72,textAlign:"center",letterSpacing:"-0.01em"}}>What Bolt actually does</h2>
+      </Reveal>
+      <div style={{display:"flex",flexDirection:"column",gap:64}}>
+        {items.map((item,i)=>(
+          <Reveal key={item.n} delay={i*0.12}>
+            <div style={{display:"flex",gap:40,alignItems:"flex-start"}}>
+              <span style={{fontFamily:FI.sans,fontSize:11,color:CI.accent,fontWeight:500,letterSpacing:"0.1em",paddingTop:6,minWidth:24}}>{item.n}</span>
+              <div>
+                <h3 style={{fontFamily:FI.serif,fontSize:22,fontWeight:500,color:CI.text,marginBottom:10}}>{item.title}</h3>
+                <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,lineHeight:1.7,fontWeight:300,margin:0}}>{item.body}</p>
+              </div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+function INSocialProof(){
+  const stats=[
+    {value:"12,400+",label:"blueprints generated"},
+    {value:"₹18,000",label:"avg. Month 3 income"},
+    {value:"3 min",label:"to your full roadmap"},
+  ];
+  return(
+    <section style={{background:CI.surface,padding:"100px 32px"}}>
+      <div style={{maxWidth:720,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:32,textAlign:"center"}}>
+        {stats.map((s,i)=>(
+          <Reveal key={s.value} delay={i*0.1}>
+            <div>
+              <div style={{fontFamily:FI.serif,fontSize:"clamp(32px,5vw,52px)",fontWeight:500,color:CI.text,letterSpacing:"-0.02em",lineHeight:1,marginBottom:12}}>{s.value}</div>
+              <div style={{fontFamily:FI.sans,fontSize:12,color:CI.muted,fontWeight:400,letterSpacing:"0.06em",textTransform:"uppercase"}}>{s.label}</div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+}
+function INHowItWorks({onStart}){
+  const steps=[
+    {step:"Answer",desc:"Seven thoughtful questions about your life and skills"},
+    {step:"Discover",desc:"Your top income path, matched to who you already are"},
+    {step:"Plan",desc:"Your 90-day roadmap, with real milestones and numbers"},
+  ];
+  return(
+    <section style={{background:CI.bg,padding:"120px 32px",textAlign:"center"}}>
+      <Reveal>
+        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:80,letterSpacing:"-0.01em"}}>How it works</h2>
+      </Reveal>
+      <div style={{display:"flex",justifyContent:"center",gap:48,flexWrap:"wrap",maxWidth:800,margin:"0 auto 80px"}}>
+        {steps.map((s,i)=>(
+          <Reveal key={s.step} delay={i*0.15}>
+            <div style={{maxWidth:200}}>
+              <div style={{width:40,height:40,borderRadius:"50%",border:`1px solid ${CI.border}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontFamily:FI.sans,fontSize:13,color:CI.muted}}>{i+1}</div>
+              <h3 style={{fontFamily:FI.serif,fontSize:20,fontWeight:500,color:CI.text,marginBottom:10}}>{s.step}</h3>
+              <p style={{fontFamily:FI.sans,fontSize:14,color:CI.muted,lineHeight:1.65,fontWeight:300,margin:0}}>{s.desc}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+      <Reveal delay={0.3}>
+        <button onClick={onStart} style={{background:"transparent",color:CI.text,border:`1px solid ${CI.text}`,borderRadius:4,padding:"16px 40px",fontFamily:FI.sans,fontSize:14,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",transition:"all 0.3s ease"}}
+          onMouseEnter={e=>{e.currentTarget.style.background=CI.text;e.currentTarget.style.color=CI.bg;}}
+          onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=CI.text;}}>
+          Get my blueprint — free
+        </button>
+      </Reveal>
+    </section>
+  );
+}
+function INFinalCTA({onStart}){
+  return(
+    <section style={{background:CI.text,padding:"140px 32px",textAlign:"center"}}>
+      <Reveal>
+        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(32px,6vw,60px)",fontWeight:400,color:CI.bg,lineHeight:1.2,letterSpacing:"-0.02em",marginBottom:24}}>
+          Your blueprint is<br/>three minutes away.
+        </h2>
+      </Reveal>
+      <Reveal delay={0.2}>
+        <p style={{fontFamily:FI.sans,fontSize:16,color:"#a89a8c",fontWeight:300,marginBottom:52,lineHeight:1.7}}>No email. No credit card. Just clarity.</p>
+      </Reveal>
+      <Reveal delay={0.35}>
+        <button onClick={onStart} style={{background:CI.accent,color:"#fff",border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",transition:"opacity 0.2s ease"}}
+          onMouseEnter={e=>{e.currentTarget.style.opacity="0.88";}}
+          onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}>
+          Begin now
+        </button>
+      </Reveal>
+    </section>
+  );
+}
+function LandingIN({onStart}){
+  const progress=useScrollProgress();
+  return(
+    <div style={{background:CI.bg,fontFamily:FI.sans}}>
+      <div style={{position:"fixed",top:0,left:0,width:2,height:`${progress*100}%`,background:CI.accent,zIndex:9999,transition:"height 0.1s linear"}}/>
+      <nav style={{position:"fixed",top:0,left:0,right:0,height:64,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 40px",background:`${CI.bg}ee`,backdropFilter:"blur(12px)",zIndex:100,borderBottom:`1px solid ${CI.border}`}}>
+        <span style={{fontFamily:FI.serif,fontSize:20,fontWeight:500,color:CI.text,letterSpacing:"-0.02em"}}>Bolt</span>
+        <button onClick={onStart} style={{background:"transparent",border:`1px solid ${CI.border}`,borderRadius:3,padding:"8px 20px",fontFamily:FI.sans,fontSize:13,color:CI.muted,cursor:"pointer",transition:"all 0.2s"}}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor=CI.text;e.currentTarget.style.color=CI.text;}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor=CI.border;e.currentTarget.style.color=CI.muted;}}>
+          Get started
+        </button>
+      </nav>
+      <div style={{paddingTop:64}}>
+        <INHero onStart={onStart}/>
+        <INShift/>
+        <INWhatBoltDoes/>
+        <INSocialProof/>
+        <INHowItWorks onStart={onStart}/>
+        <INFinalCTA onStart={onStart}/>
+      </div>
+    </div>
+  );
+}
+
 // - MAIN APP -
 export default function App() {
 const [view,setView]=useState(V.LANDING);
@@ -1174,6 +1383,7 @@ const [showAdmin,setShowAdmin]=useState(false);
 const [selectedNiche,setSelectedNiche]=useState(null);
 const [retakeCount,setRetakeCount]=useState(0);
 const [abCell]=useState(()=>getABCell());
+const [isIN]=useState(()=>window.location.pathname==="/in");
 const topRef=useRef(null);
 
 const abConfig=AB_CELLS[abCell];
@@ -1240,6 +1450,9 @@ return null;
 
 
 };
+
+// - INDIA LANDING ROUTE -
+if(isIN&&view===V.LANDING) return <LandingIN onStart={()=>{window.history.pushState({},"","/");go(V.MOBILE);}}/>;
 
 // - LANDING -
 if(view===V.LANDING) return (
