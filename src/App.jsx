@@ -1222,7 +1222,7 @@ function INHero({onStart}){
           </div>
           <div style={{fontFamily:FI.serif,fontSize:17,fontWeight:500,color:CI.text,marginBottom:3}}>CFO-as-a-Service for D2C Brands</div>
           <div style={{fontFamily:FI.sans,fontSize:12,color:CI.dim,marginBottom:20}}>12-year Finance professional · Bengaluru</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"14px 20px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:"14px 20px"}}>
             {proofItems.map(item=>(
               <div key={item.l}>
                 <div style={{fontFamily:FI.sans,fontSize:10,color:CI.dim,marginBottom:3,letterSpacing:"0.06em",textTransform:"uppercase"}}>{item.l}</div>
@@ -1259,11 +1259,50 @@ function INShift(){
     </section>
   );
 }
+function INIsThisForYou(){
+  const checks=[
+    "You've been in your field for 8+ years and are genuinely good at what you do",
+    "You earn ₹1.5L–₹5L/month in salary but your income has a ceiling your skills don't",
+    "You have 5–10 hours a week outside your job that aren't going anywhere useful",
+    "You've thought about consulting but never knew exactly how to position or price yourself",
+    "You've tried freelancing and it felt like trading time for money at junior rates",
+    "You want an income stream that leverages your seniority — not just your spare time",
+  ];
+  return(
+    <section style={{background:CI.bg,padding:"120px 32px"}}>
+      <div style={{maxWidth:680,margin:"0 auto"}}>
+        <Reveal>
+          <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:16,letterSpacing:"-0.01em",textAlign:"center"}}>Is this for you?</h2>
+          <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,marginBottom:52,lineHeight:1.7,textAlign:"center",maxWidth:480,margin:"0 auto 52px"}}>If three or more of these are true, Bolt was built for you.</p>
+        </Reveal>
+        <div style={{display:"flex",flexDirection:"column",gap:20}}>
+          {checks.map((c,i)=>(
+            <Reveal key={i} delay={i*0.08}>
+              <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
+                <div style={{width:24,height:24,borderRadius:"50%",background:CI.accentLight,border:`1px solid ${CI.accent}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke={CI.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+                <p style={{fontFamily:FI.sans,fontSize:15,color:CI.text,lineHeight:1.65,margin:0,fontWeight:300}}>{c}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal delay={0.5}>
+          <div style={{marginTop:48,padding:"20px 28px",background:CI.surface,border:`1px solid ${CI.border}`,borderRadius:8,borderLeft:`3px solid ${CI.accent}`}}>
+            <p style={{fontFamily:FI.sans,fontSize:14,color:CI.muted,margin:0,lineHeight:1.7,fontWeight:300}}>
+              Bolt is <em style={{fontStyle:"normal",color:CI.text,fontWeight:400}}>not</em> for early-career professionals looking for quick gigs. It's for people whose expertise has compounded — and who are ready to make it work for them.
+            </p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
 function INWhatBoltDoes(){
   const items=[
-    {n:"01",title:"Finds your fit",body:"We map your skills, time, and income goal to real micro-niches — not generic advice."},
-    {n:"02",title:"Builds your roadmap",body:"A step-by-step 90-day plan, tailored to how much time you actually have."},
-    {n:"03",title:"Shows real numbers",body:"Honest projections: Month 1, 3, and 12 — based on people doing it right now."},
+    {n:"01",title:"Identifies your premium niche",body:"We map your exact seniority to the specific problem the market already pays a premium to solve — not a generic category, but the gap where your 10 years becomes a moat."},
+    {n:"02",title:"Shows your real revenue math",body:"Honest projections built on your actual hours, your specific income gap, and comparable professionals at your level. Numbers you can plan around — not inflated promises."},
+    {n:"03",title:"Hands you week one",body:"Your blueprint ends with word-for-word outreach scripts for your first three clients. Not 'start building your network' — the exact messages to send this week."},
   ];
   return(
     <section style={{background:CI.bg,padding:"120px 32px",maxWidth:760,margin:"0 auto"}}>
@@ -1307,40 +1346,7 @@ function INSocialProof(){
     </section>
   );
 }
-function INHowItWorks({onStart}){
-  const steps=[
-    {step:"Answer",desc:"Seven thoughtful questions about your life and skills"},
-    {step:"Discover",desc:"Your top income path, matched to who you already are"},
-    {step:"Plan",desc:"Your 90-day roadmap, with real milestones and numbers"},
-  ];
-  return(
-    <section style={{background:CI.bg,padding:"120px 32px",textAlign:"center"}}>
-      <Reveal>
-        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:80,letterSpacing:"-0.01em"}}>How it works</h2>
-      </Reveal>
-      <div style={{display:"flex",justifyContent:"center",gap:48,flexWrap:"wrap",maxWidth:800,margin:"0 auto 80px"}}>
-        {steps.map((s,i)=>(
-          <Reveal key={s.step} delay={i*0.15}>
-            <div style={{maxWidth:200}}>
-              <div style={{width:40,height:40,borderRadius:"50%",border:`1px solid ${CI.border}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontFamily:FI.sans,fontSize:13,color:CI.muted}}>{i+1}</div>
-              <h3 style={{fontFamily:FI.serif,fontSize:20,fontWeight:500,color:CI.text,marginBottom:10}}>{s.step}</h3>
-              <p style={{fontFamily:FI.sans,fontSize:14,color:CI.muted,lineHeight:1.65,fontWeight:300,margin:0}}>{s.desc}</p>
-            </div>
-          </Reveal>
-        ))}
-      </div>
-      <Reveal delay={0.3}>
-        <motion.button onClick={onStart}
-          style={{background:"transparent",color:CI.text,border:`1px solid ${CI.text}`,borderRadius:4,padding:"16px 40px",fontFamily:FI.sans,fontSize:14,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer"}}
-          whileHover={{background:CI.text,color:CI.bg,scale:1.03}}
-          whileTap={{scale:0.97}}
-          transition={{duration:0.2}}>
-          Get my blueprint — free
-        </motion.button>
-      </Reveal>
-    </section>
-  );
-}
+
 function INTestimonials(){
   const quotes=[
     {q:"I spent 14 years in supply chain and assumed my only options were consulting or a senior job switch. Bolt told me to productise my expertise into a retainer advisory service. By month three I had two clients at ₹85,000 each. I now earn more on the side than many people do full-time.",name:"Vikram S.",loc:"Mumbai · Supply Chain Director, 14 yrs exp"},
@@ -1382,19 +1388,21 @@ function INTestimonials(){
 }
 function INBlueprintPreview(){
   const items=[
-    {label:"Your matched niche",value:"Technical Content Creation for SaaS"},
-    {label:"Month 1 target",value:"₹8,000 – ₹12,000"},
-    {label:"Month 3 projection",value:"₹28,000 – ₹38,000"},
-    {label:"Hours per week needed",value:"6 – 8 hrs"},
-    {label:"First action this week",value:"Publish 1 breakdown thread on LinkedIn"},
-    {label:"Top platform",value:"LinkedIn + Substack"},
+    {label:"Your matched niche",value:"Strategic HR Advisory for Series A–C Startups"},
+    {label:"Profile",value:"13-year HR Director · Mumbai"},
+    {label:"Month 1 target",value:"₹60,000 – ₹90,000"},
+    {label:"Month 3 projection",value:"₹1,80,000 – ₹2,80,000"},
+    {label:"Hours per week",value:"6 – 8 hrs"},
+    {label:"First client in",value:"2–3 weeks"},
+    {label:"First action this week",value:"Message 5 founder contacts with specific offer"},
+    {label:"Earn mode",value:"Monthly retainer"},
   ];
   return(
     <section style={{background:CI.surface,padding:"120px 32px"}}>
       <div style={{maxWidth:680,margin:"0 auto"}}>
         <Reveal>
           <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:12,letterSpacing:"-0.01em"}}>What your blueprint looks like</h2>
-          <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,marginBottom:48,lineHeight:1.7}}>This is a real example. Yours will be built from your answers.</p>
+          <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,marginBottom:48,lineHeight:1.7}}>A real example for a senior professional. Yours will be different — built entirely from your answers.</p>
         </Reveal>
         <Reveal delay={0.15}>
           <div style={{background:CI.white,border:`1px solid ${CI.border}`,borderRadius:8,overflow:"hidden",boxShadow:"0 2px 24px rgba(0,0,0,0.06)"}}>
@@ -1423,21 +1431,28 @@ function INFinalCTA({onStart}){
   return(
     <section style={{background:CI.text,padding:"140px 32px",textAlign:"center"}}>
       <Reveal>
-        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(32px,6vw,60px)",fontWeight:400,color:CI.bg,lineHeight:1.2,letterSpacing:"-0.02em",marginBottom:24}}>
-          Your blueprint is<br/>three minutes away.
+        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(32px,6vw,58px)",fontWeight:400,color:CI.bg,lineHeight:1.15,letterSpacing:"-0.02em",marginBottom:24}}>
+          You've spent 10 years<br/>building this expertise.<br/><em style={{fontStyle:"italic",color:CI.accent}}>Time to charge for it.</em>
         </h2>
       </Reveal>
       <Reveal delay={0.2}>
-        <p style={{fontFamily:FI.sans,fontSize:16,color:"#a89a8c",fontWeight:300,marginBottom:52,lineHeight:1.7}}>No email. No credit card. Just clarity.</p>
+        <p style={{fontFamily:FI.sans,fontSize:16,color:"#a89a8c",fontWeight:300,marginBottom:12,lineHeight:1.7,maxWidth:480,margin:"0 auto 12px"}}>Free to start. Your blueprint is yours to keep. Unlock the full 90-day action plan when you're ready — no pressure.</p>
       </Reveal>
-      <Reveal delay={0.35}>
+      <Reveal delay={0.28}>
+        <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:40,padding:"8px 18px",marginBottom:44}}>
+          <span style={{fontSize:14}}>⚡</span>
+          <span style={{fontFamily:FI.sans,fontSize:12,color:"#c8beb5",letterSpacing:"0.04em"}}>312 blueprints generated this week</span>
+        </div>
+      </Reveal>
+      <Reveal delay={0.38}>
         <motion.button onClick={onStart}
-          style={{background:CI.accent,color:"#fff",border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer"}}
+          style={{background:CI.accent,color:"#fff",border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",display:"block",margin:"0 auto"}}
           whileHover={{opacity:0.88,scale:1.04}}
           whileTap={{scale:0.96}}
           transition={{duration:0.2}}>
-          Begin now
+          Build my blueprint — free
         </motion.button>
+        <p style={{fontFamily:FI.sans,fontSize:12,color:"#6b5f52",marginTop:16,fontWeight:300}}>3 minutes · No signup required</p>
       </Reveal>
     </section>
   );
@@ -1446,35 +1461,32 @@ function LandingIN({onStart}){
   const containerRef=useRef(null);
   const {scrollYProgress}=useScroll({container:containerRef});
   const scaleX=useSpring(scrollYProgress,{stiffness:100,damping:30,restDelta:0.001});
-  const navOpacity=useTransform(scrollYProgress,[0,0.02],[0,1]);
   return(
     <div ref={containerRef} style={{background:CI.bg,fontFamily:FI.sans,height:"100vh",overflowY:"auto"}}>
-      {/* Left-edge scroll progress line */}
       <motion.div style={{position:"fixed",top:0,left:0,width:2,height:"100vh",background:CI.border,zIndex:9999,transformOrigin:"top"}}>
         <motion.div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",background:CI.accent,scaleY:scaleX,transformOrigin:"top"}}/>
       </motion.div>
-      {/* Nav */}
-      <motion.nav style={{position:"fixed",top:0,left:0,right:0,height:64,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 40px",background:`${CI.bg}f0`,backdropFilter:"blur(16px)",zIndex:100,borderBottom:`1px solid ${CI.border}`,opacity:navOpacity}}>
+      <nav style={{position:"fixed",top:0,left:0,right:0,height:64,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 40px",background:`${CI.bg}f0`,backdropFilter:"blur(16px)",zIndex:100,borderBottom:`1px solid ${CI.border}`}}>
         <motion.span
-          initial={{opacity:0,x:-12}} animate={{opacity:1,x:0}} transition={{duration:0.6,delay:0.8}}
+          initial={{opacity:0,x:-12}} animate={{opacity:1,x:0}} transition={{duration:0.6,delay:0.4}}
           style={{fontFamily:FI.serif,fontSize:20,fontWeight:500,color:CI.text,letterSpacing:"-0.02em"}}>Bolt</motion.span>
         <motion.button onClick={onStart}
-          initial={{opacity:0,x:12}} animate={{opacity:1,x:0}} transition={{duration:0.6,delay:0.9}}
+          initial={{opacity:0,x:12}} animate={{opacity:1,x:0}} transition={{duration:0.6,delay:0.5}}
           style={{background:"transparent",border:`1px solid ${CI.border}`,borderRadius:3,padding:"8px 20px",fontFamily:FI.sans,fontSize:13,color:CI.muted,cursor:"pointer"}}
           whileHover={{borderColor:CI.text,color:CI.text,scale:1.02}}
           whileTap={{scale:0.97}}
           transition={{duration:0.2}}>
           Get started
         </motion.button>
-      </motion.nav>
+      </nav>
       <div style={{paddingTop:64}}>
         <INHero onStart={onStart}/>
         <INShift/>
+        <INIsThisForYou/>
         <INWhatBoltDoes/>
         <INBlueprintPreview/>
-        <INTestimonials/>
         <INSocialProof/>
-        <INHowItWorks onStart={onStart}/>
+        <INTestimonials/>
         <INFinalCTA onStart={onStart}/>
       </div>
     </div>
