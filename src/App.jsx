@@ -1247,7 +1247,7 @@ function INHero({onStart}){
 }
 function INShift(){
   return(
-    <section style={{background:CI.surface,padding:"120px 32px",textAlign:"center"}}>
+    <section style={{background:CI.surface,padding:"72px 32px",textAlign:"center"}}>
       <Reveal>
         <p style={{fontFamily:FI.serif,fontSize:"clamp(24px,4.5vw,44px)",fontWeight:400,color:CI.text,lineHeight:1.35,maxWidth:720,margin:"0 auto 24px",letterSpacing:"-0.01em"}}>
           "After 10 years, you are not underpaid because you lack skill. You are underpaid because no one has shown you where to point it."
@@ -1256,6 +1256,49 @@ function INShift(){
       <Reveal delay={0.2}>
         <p style={{fontFamily:FI.sans,fontSize:16,color:CI.muted,fontWeight:300,maxWidth:480,margin:"0 auto"}}>Bolt maps your expertise to the income path the market is already buying — and shows you exactly how to reach your first client.</p>
       </Reveal>
+    </section>
+  );
+}
+function INJourneyMap(){
+  const steps=[
+    {n:"1",title:"Answer",sub:"7 questions",body:"Your expertise, time available, income gap, what you've already tried. Takes 3 minutes.",loop:false},
+    {n:"2",title:"Shortlist",sub:"3 ranked ideas",body:"Your top income paths ranked by fit — with honest revenue projections and effort estimates for each.",loop:false},
+    {n:"3",title:"Deep dive",sub:"Action-ready prompts",body:"Choose your best idea. Get pricing, outreach scripts, a 90-day plan, and ready-to-deliver prompts to start this week.",loop:false},
+    {n:"↺",title:"Come back",sub:"Refine & level up",body:"As you grow, revisit and retake. Most people refine their blueprint within 60 days of their first client.",loop:true},
+  ];
+  return(
+    <section style={{background:CI.bg,padding:"72px 32px"}}>
+      <div style={{maxWidth:960,margin:"0 auto"}}>
+        <Reveal>
+          <div style={{textAlign:"center",marginBottom:52}}>
+            <h2 style={{fontFamily:FI.serif,fontSize:"clamp(22px,4vw,36px)",fontWeight:400,color:CI.text,marginBottom:12,letterSpacing:"-0.01em"}}>How close are you to building something real?</h2>
+            <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,lineHeight:1.7}}>Four moves. Most people have their first client conversation within 3 weeks of their blueprint.</p>
+          </div>
+        </Reveal>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:2,position:"relative"}}>
+          {steps.map((step,i)=>(
+            <Reveal key={step.n} delay={i*0.12}>
+              <div style={{background:step.loop?CI.surface:CI.white,border:`1px solid ${CI.border}`,borderRadius:10,padding:"28px 24px",position:"relative",height:"100%",boxSizing:"border-box"}}>
+                <div style={{width:40,height:40,borderRadius:"50%",background:step.loop?CI.surface:CI.accentLight,border:`1.5px solid ${step.loop?CI.border:CI.accent}`,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20}}>
+                  <span style={{fontFamily:FI.serif,fontSize:step.loop?20:16,fontWeight:600,color:step.loop?CI.dim:CI.accent}}>{step.n}</span>
+                </div>
+                <div style={{fontFamily:FI.sans,fontSize:10,color:step.loop?CI.dim:CI.accent,letterSpacing:"0.14em",textTransform:"uppercase",marginBottom:6,fontWeight:500}}>{step.sub}</div>
+                <h3 style={{fontFamily:FI.serif,fontSize:18,fontWeight:500,color:CI.text,marginBottom:10}}>{step.title}</h3>
+                <p style={{fontFamily:FI.sans,fontSize:13,color:CI.muted,lineHeight:1.65,margin:0,fontWeight:300}}>{step.body}</p>
+                {!step.loop&&<div style={{position:"absolute",top:"50%",right:-14,width:26,height:26,background:CI.bg,border:`1px solid ${CI.border}`,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",zIndex:2,transform:"translateY(-50%)"}}>
+                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4h6M4 1l3 3-3 3" stroke={CI.dim} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>}
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal delay={0.5}>
+          <div style={{marginTop:28,padding:"18px 24px",background:CI.accentLight,borderRadius:8,display:"flex",alignItems:"center",gap:14}}>
+            <span style={{fontSize:18}}>⚡</span>
+            <p style={{fontFamily:FI.sans,fontSize:13,color:CI.accent,margin:0,fontWeight:400,lineHeight:1.6}}>You are already at step 1. Everything Bolt needs to build your blueprint exists in your answers. Start now and you could have your first client conversation by next month.</p>
+          </div>
+        </Reveal>
+      </div>
     </section>
   );
 }
@@ -1269,27 +1312,27 @@ function INIsThisForYou(){
     "You want an income stream that leverages your seniority — not just your spare time",
   ];
   return(
-    <section style={{background:CI.bg,padding:"120px 32px"}}>
+    <section style={{background:CI.surface,padding:"72px 32px"}}>
       <div style={{maxWidth:680,margin:"0 auto"}}>
         <Reveal>
           <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:16,letterSpacing:"-0.01em",textAlign:"center"}}>Is this for you?</h2>
-          <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,marginBottom:52,lineHeight:1.7,textAlign:"center",maxWidth:480,margin:"0 auto 52px"}}>If three or more of these are true, Bolt was built for you.</p>
+          <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,marginBottom:40,lineHeight:1.7,textAlign:"center",maxWidth:480,margin:"0 auto 40px"}}>If three or more of these are true, Bolt was built for you.</p>
         </Reveal>
-        <div style={{display:"flex",flexDirection:"column",gap:20}}>
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
           {checks.map((c,i)=>(
-            <Reveal key={i} delay={i*0.08}>
-              <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
-                <div style={{width:24,height:24,borderRadius:"50%",background:CI.accentLight,border:`1px solid ${CI.accent}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
-                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke={CI.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <Reveal key={i} delay={i*0.07}>
+              <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
+                <div style={{width:22,height:22,borderRadius:"50%",background:CI.accentLight,border:`1px solid ${CI.accent}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}>
+                  <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3 5.5L8 1" stroke={CI.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
-                <p style={{fontFamily:FI.sans,fontSize:15,color:CI.text,lineHeight:1.65,margin:0,fontWeight:300}}>{c}</p>
+                <p style={{fontFamily:FI.sans,fontSize:14,color:CI.text,lineHeight:1.6,margin:0,fontWeight:300}}>{c}</p>
               </div>
             </Reveal>
           ))}
         </div>
-        <Reveal delay={0.5}>
-          <div style={{marginTop:48,padding:"20px 28px",background:CI.surface,border:`1px solid ${CI.border}`,borderRadius:8,borderLeft:`3px solid ${CI.accent}`}}>
-            <p style={{fontFamily:FI.sans,fontSize:14,color:CI.muted,margin:0,lineHeight:1.7,fontWeight:300}}>
+        <Reveal delay={0.48}>
+          <div style={{marginTop:36,padding:"18px 24px",background:CI.bg,border:`1px solid ${CI.border}`,borderRadius:8,borderLeft:`3px solid ${CI.accent}`}}>
+            <p style={{fontFamily:FI.sans,fontSize:13,color:CI.muted,margin:0,lineHeight:1.7,fontWeight:300}}>
               Bolt is <em style={{fontStyle:"normal",color:CI.text,fontWeight:400}}>not</em> for early-career professionals looking for quick gigs. It's for people whose expertise has compounded — and who are ready to make it work for them.
             </p>
           </div>
@@ -1299,28 +1342,65 @@ function INIsThisForYou(){
   );
 }
 function INWhatBoltDoes(){
+  const NicheIcon=()=>(
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <circle cx="18" cy="18" r="14" stroke={CI.accent} strokeWidth="1.5"/>
+      <circle cx="18" cy="18" r="8" stroke={CI.accent} strokeWidth="1.5"/>
+      <circle cx="18" cy="18" r="3" fill={CI.accent}/>
+      <line x1="18" y1="1" x2="18" y2="6" stroke={CI.accent} strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="18" y1="30" x2="18" y2="35" stroke={CI.accent} strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="1" y1="18" x2="6" y2="18" stroke={CI.accent} strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="30" y1="18" x2="35" y2="18" stroke={CI.accent} strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+  const NumbersIcon=()=>(
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <rect x="2" y="22" width="8" height="12" rx="1.5" fill={CI.accentLight} stroke={CI.accent} strokeWidth="1.5"/>
+      <rect x="14" y="14" width="8" height="20" rx="1.5" fill={CI.accentLight} stroke={CI.accent} strokeWidth="1.5"/>
+      <rect x="26" y="6" width="8" height="28" rx="1.5" fill={CI.accentLight} stroke={CI.accent} strokeWidth="1.5"/>
+    </svg>
+  );
+  const NowIcon=()=>(
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <path d="M4 18H32" stroke={CI.accent} strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M23 9L32 18L23 27" stroke={CI.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="4" cy="18" r="3.5" fill={CI.accentLight} stroke={CI.accent} strokeWidth="1.5"/>
+    </svg>
+  );
   const items=[
-    {n:"01",title:"Identifies your premium niche",body:"We map your exact seniority to the specific problem the market already pays a premium to solve — not a generic category, but the gap where your 10 years becomes a moat."},
-    {n:"02",title:"Shows your real revenue math",body:"Honest projections built on your actual hours, your specific income gap, and comparable professionals at your level. Numbers you can plan around — not inflated promises."},
-    {n:"03",title:"Hands you week one",body:"Your blueprint ends with word-for-word outreach scripts for your first three clients. Not 'start building your network' — the exact messages to send this week."},
+    {label:"NICHE",Icon:NicheIcon,title:"Identifies your premium niche",body:"We map your exact seniority to the specific problem the market already pays a premium to solve — the gap where 10 years of experience becomes an unfair advantage."},
+    {label:"NUMBERS",Icon:NumbersIcon,title:"Shows your real revenue math",body:"Honest projections built on your actual hours and income gap. Comparable professionals at your level, calibrated to the Indian market. Not inflated promises."},
+    {label:"NOW",Icon:NowIcon,title:"Hands you this week's move",body:"Word-for-word outreach scripts for your first three clients, plus ready-to-use prompts so you can start delivering value immediately — not after months of preparation."},
   ];
   return(
-    <section style={{background:CI.bg,padding:"120px 32px",maxWidth:760,margin:"0 auto"}}>
-      <Reveal>
-        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:72,textAlign:"center",letterSpacing:"-0.01em"}}>What Bolt actually does</h2>
-      </Reveal>
-      <div style={{display:"flex",flexDirection:"column",gap:64}}>
-        {items.map((item,i)=>(
-          <Reveal key={item.n} delay={i*0.12}>
-            <div style={{display:"flex",gap:40,alignItems:"flex-start"}}>
-              <span style={{fontFamily:FI.sans,fontSize:11,color:CI.accent,fontWeight:500,letterSpacing:"0.1em",paddingTop:6,minWidth:24}}>{item.n}</span>
-              <div>
-                <h3 style={{fontFamily:FI.serif,fontSize:22,fontWeight:500,color:CI.text,marginBottom:10}}>{item.title}</h3>
-                <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,lineHeight:1.7,fontWeight:300,margin:0}}>{item.body}</p>
-              </div>
+    <section style={{background:CI.bg,padding:"72px 32px"}}>
+      <div style={{maxWidth:960,margin:"0 auto"}}>
+        <Reveal>
+          <div style={{textAlign:"center",marginBottom:40}}>
+            <h2 style={{fontFamily:FI.serif,fontSize:"clamp(22px,4vw,36px)",fontWeight:400,color:CI.text,marginBottom:20,letterSpacing:"-0.01em"}}>What Bolt actually does</h2>
+            <div style={{display:"flex",justifyContent:"center",alignItems:"baseline",gap:"clamp(10px,2vw,24px)",flexWrap:"wrap"}}>
+              {["NICHE","NUMBERS","NOW"].map((w,i)=>(
+                <span key={w} style={{display:"flex",alignItems:"baseline",gap:"clamp(10px,2vw,24px)"}}>
+                  <span style={{fontFamily:FI.serif,fontSize:"clamp(20px,3.5vw,34px)",fontWeight:700,color:CI.accent,letterSpacing:"0.04em"}}>{w}</span>
+                  {i<2&&<span style={{color:CI.dim,fontSize:22,fontWeight:300}}>·</span>}
+                </span>
+              ))}
             </div>
-          </Reveal>
-        ))}
+            <p style={{fontFamily:FI.sans,fontSize:13,color:CI.dim,fontWeight:300,marginTop:12,letterSpacing:"0.04em"}}>Three things Bolt delivers from your answers — in that order.</p>
+          </div>
+        </Reveal>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:16}}>
+          {items.map((item,i)=>(
+            <Reveal key={item.label} delay={i*0.12}>
+              <div style={{background:CI.surface,border:`1px solid ${CI.border}`,borderRadius:12,padding:"32px 28px",height:"100%",boxSizing:"border-box"}}>
+                <item.Icon/>
+                <div style={{fontFamily:FI.sans,fontSize:10,color:CI.accent,letterSpacing:"0.18em",textTransform:"uppercase",margin:"20px 0 8px",fontWeight:600}}>{item.label}</div>
+                <h3 style={{fontFamily:FI.serif,fontSize:19,fontWeight:500,color:CI.text,marginBottom:12,lineHeight:1.35}}>{item.title}</h3>
+                <p style={{fontFamily:FI.sans,fontSize:14,color:CI.muted,lineHeight:1.7,fontWeight:300,margin:0}}>{item.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -1332,7 +1412,7 @@ function INSocialProof(){
     {value:"3 min",label:"to your full roadmap"},
   ];
   return(
-    <section style={{background:CI.surface,padding:"100px 32px"}}>
+    <section style={{background:CI.surface,padding:"56px 32px"}}>
       <div style={{maxWidth:720,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:32,textAlign:"center"}}>
         {stats.map((s,i)=>(
           <Reveal key={s.value} delay={i*0.1}>
@@ -1354,16 +1434,16 @@ function INTestimonials(){
     {q:"I thought side income meant weekends on Upwork. Bolt showed me a completely different model — premium advisory to founders in my domain. The specificity of the roadmap meant I never had to guess what to do next.",name:"Rohit K.",loc:"Delhi · Product Director, 12 yrs exp"},
   ];
   return(
-    <section style={{background:CI.bg,padding:"120px 32px"}}>
+    <section style={{background:CI.bg,padding:"72px 32px"}}>
       <div style={{maxWidth:860,margin:"0 auto"}}>
         <Reveal>
-          <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:64}}>
+          <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:48}}>
             <div style={{flex:1,height:1,background:CI.border}}/>
             <span style={{fontFamily:FI.sans,fontSize:11,color:CI.dim,letterSpacing:"0.15em",textTransform:"uppercase",whiteSpace:"nowrap"}}>From people like you</span>
             <div style={{flex:1,height:1,background:CI.border}}/>
           </div>
         </Reveal>
-        <div style={{display:"flex",flexDirection:"column",gap:56}}>
+        <div style={{display:"flex",flexDirection:"column",gap:40}}>
           {quotes.map((t,i)=>(
             <Reveal key={t.name} delay={i*0.1}>
               <div style={{display:"grid",gridTemplateColumns:"40px 1fr",gap:24,alignItems:"start"}}>
@@ -1398,11 +1478,11 @@ function INBlueprintPreview(){
     {label:"Earn mode",value:"Monthly retainer"},
   ];
   return(
-    <section style={{background:CI.surface,padding:"120px 32px"}}>
+    <section style={{background:CI.surface,padding:"72px 32px"}}>
       <div style={{maxWidth:680,margin:"0 auto"}}>
         <Reveal>
           <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:12,letterSpacing:"-0.01em"}}>What your blueprint looks like</h2>
-          <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,marginBottom:48,lineHeight:1.7}}>A real example for a senior professional. Yours will be different — built entirely from your answers.</p>
+          <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,marginBottom:40,lineHeight:1.7}}>A real example for a senior professional. Yours will be built entirely from your answers — including ready-to-action prompts, scripts, and a 90-day plan.</p>
         </Reveal>
         <Reveal delay={0.15}>
           <div style={{background:CI.white,border:`1px solid ${CI.border}`,borderRadius:8,overflow:"hidden",boxShadow:"0 2px 24px rgba(0,0,0,0.06)"}}>
@@ -1419,7 +1499,7 @@ function INBlueprintPreview(){
               ))}
             </div>
             <div style={{background:CI.accentLight,padding:"16px 28px",borderTop:`1px solid ${CI.border}`}}>
-              <p style={{fontFamily:FI.sans,fontSize:12,color:CI.accent,margin:0,fontWeight:400}}>+ 90-day week-by-week action plan · Platform starter guide · Income milestone tracker</p>
+              <p style={{fontFamily:FI.sans,fontSize:12,color:CI.accent,margin:0,fontWeight:400}}>+ 90-day week-by-week action plan · Ready-to-send outreach scripts · Delivery prompts so you can start helping clients immediately · Income milestone tracker</p>
             </div>
           </div>
         </Reveal>
@@ -1429,10 +1509,10 @@ function INBlueprintPreview(){
 }
 function INFinalCTA({onStart}){
   return(
-    <section style={{background:CI.text,padding:"140px 32px",textAlign:"center"}}>
+    <section style={{background:CI.text,padding:"100px 32px",textAlign:"center"}}>
       <Reveal>
-        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(32px,6vw,58px)",fontWeight:400,color:CI.bg,lineHeight:1.15,letterSpacing:"-0.02em",marginBottom:24}}>
-          You've spent 10 years<br/>building this expertise.<br/><em style={{fontStyle:"italic",color:CI.accent}}>Time to charge for it.</em>
+        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(30px,6vw,56px)",fontWeight:400,color:CI.bg,lineHeight:1.15,letterSpacing:"-0.02em",marginBottom:24}}>
+          You've spent 10 years<br/>building this expertise.<br/><em style={{fontStyle:"italic",color:CI.accent}}>Time to use it to help others — and get paid doing it.</em>
         </h2>
       </Reveal>
       <Reveal delay={0.2}>
@@ -1482,6 +1562,7 @@ function LandingIN({onStart}){
       <div style={{paddingTop:64}}>
         <INHero onStart={onStart}/>
         <INShift/>
+        <INJourneyMap/>
         <INIsThisForYou/>
         <INWhatBoltDoes/>
         <INBlueprintPreview/>
