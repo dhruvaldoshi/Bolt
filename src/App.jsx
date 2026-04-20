@@ -1,16 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 
-// System fonts only - no external dependencies
+// Load Google Fonts globally
+(()=>{
+  if(typeof document==="undefined"||document.getElementById("bolt-fonts"))return;
+  const l=document.createElement("link");l.id="bolt-fonts";l.rel="stylesheet";
+  l.href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@300;400;500&display=swap";
+  document.head.appendChild(l);
+})();
 
 // - DESIGN TOKENS -
 const C = {
-bg:"#080808",surface:"#0d0d0d",surface2:"#111",border:"#1a1a1a",border2:"#222",
-text:"#ece8df",muted:"#888",dim:"#555",dimmer:"#333",
-amber:"#f5a623",green:"#4ade80",blue:"#60a5fa",red:"#f87171",
-purple:"#c084fc",teal:"#2dd4bf",pink:"#f472b6",wa:"#25d366"
+bg:"#fdfaf6",surface:"#f7f3ee",surface2:"#f0ebe4",border:"#e8e0d5",border2:"#d4c9ba",
+text:"#1a1612",muted:"#6b5f52",dim:"#a89a8c",dimmer:"#c5b8aa",
+amber:"#c9893f",green:"#2d7a4f",blue:"#2d6b8a",red:"#c0392b",
+purple:"#7b5ea7",teal:"#2a8a7a",pink:"#b5536a",wa:"#25d366"
 };
-const F = { serif:"Georgia, serif", sans:"-apple-system, BlinkMacSystemFont, system-ui, sans-serif" };
+const F = { serif:"'Playfair Display',Georgia,serif", sans:"Inter,-apple-system,sans-serif" };
 
 // - SUPABASE SCHEMA (paste into Supabase SQL editor when going live) -
 /*
@@ -198,7 +204,7 @@ const QUESTIONS = [
 { id:"superpower",   q:"Last 3 times someone asked for your advice — what did they want to decide?",           sub:"The more specific, the better.", type:"textarea",                      placeholder:"e.g.\n1. Whether to run Meta or Google ads first\n2. How to evaluate if their agency is performing\n3. How to structure a content funnel" },
 { id:"earnMode",     q:"Rank how you prefer to earn.",                                                          sub:"Top two weighted most in your blueprint.", type:"rank",                options:[{id:"dp",label:"Digital product",desc:"Build once, sell repeatedly"},{id:"cohort",label:"Cohort",desc:"Teach a group"},{id:"project",label:"Per-project",desc:"Deliver, get paid, done"},{id:"retainer",label:"Retainer",desc:"Same client, recurring"},{id:"commission",label:"Commission",desc:"Earn % on outcomes"}] },
 { id:"audience",     q:"Describe your ideal client or customer.",                                               sub:"Their mindset, problem, spending behaviour.", type:"textarea",         placeholder:"e.g. Founders of D2C brands spending ₹2L+/month on ads who aren't seeing the ROI they expected." },
-{ id:"visibility",   q:"How visible do you want to be?",                                                        sub:"Filters which distribution strategies are realistic.", type:"choice_d", options:[{v:"active",l:"Already active online",d:"Post publicly on LinkedIn/Twitter"},{v:"occasional",l:"Occasional posting",d:"Show up but won't grind content"},{v:"minimal",l:"Product does the talking",d:"Minimal personal presence"},{v:"anon",l:"Fully behind the scenes",d:"No name, no face"}] },
+{ id:"visibility",   q:"How visible do you want to be?",                                                        sub:"Choose one — this filters which distribution strategies fit you.", type:"choice_d", options:[{v:"active",l:"Already active online",d:"Post publicly on LinkedIn/Twitter"},{v:"occasional",l:"Occasional posting",d:"Show up but won't grind content"},{v:"minimal",l:"Product does the talking",d:"Minimal personal presence"},{v:"anon",l:"Fully behind the scenes",d:"No name, no face"}] },
 { id:"network",      q:"Do you have a warm professional network you could reach out to this week?",             sub:"Biggest variable in time-to-first-rupee.", type:"choice_d",           options:[{v:"warm",l:"Yes — warm network",d:"Ex-colleagues, founders I know"},{v:"linkedin",l:"LinkedIn connections",d:"Not super warm but reachable"},{v:"cold",l:"Starting cold",d:"Will use paid ads"}] },
 { id:"pastFailure",  q:"What did you try before and what got in the way?",                                      sub:"Most predictive question on this form.", type:"textarea",             placeholder:"e.g. Ran a marketing agency. Not enough leverage for valuable profits — too much effort, not enough margin." },
 ];
@@ -245,15 +251,15 @@ const SAMPLE_BLUEPRINTS = [
 ];
 
 // - VIEWS -
-const V = { LANDING:"landing", MOBILE:"mobile", OTP:"otp", RETAKE_GATE:"retake_gate", QUIZ:"quiz", GENERATING:"generating", GATE:"gate", WELCOME:"welcome", DECISION:"decision", COMMITMENT:"commitment", ASSESSMENT:"assessment", FIRSTSTEP:"firststep", MARKET:"market", ROADMAP:"roadmap", SHARE:"share" };
+const V = { LANDING:"landing", MOBILE:"mobile", OTP:"otp", RETAKE_GATE:"retake_gate", QUIZ:"quiz", GENERATING:"generating", GATE:"gate", WELCOME:"welcome", DECISION:"decision", COMMITMENT:"commitment", ASSESSMENT:"assessment", FIRSTSTEP:"firststep", MARKET:"market", ROADMAP:"roadmap", BUNDLE_REVEAL:"bundle_reveal", SHARE:"share" };
 const SCREEN_ORDER = [V.GATE,V.WELCOME,V.DECISION,V.COMMITMENT,V.ASSESSMENT,V.FIRSTSTEP,V.MARKET,V.ROADMAP,V.SHARE];
 
 // - SHARED UI -
-const Btn = ({ children, onClick, bg=`linear-gradient(135deg,${C.amber},#e8410a)`, color=C.bg, style={} }) => (
-<button onClick={onClick} style={{ width:"100%",background:bg,border:"none",borderRadius:12,padding:"16px",fontSize:15,fontWeight:700,color,cursor:"pointer",fontFamily:F.sans,letterSpacing:0.2,transition:"all 0.2s",display:"block",...style }}>{children}</button>
+const Btn = ({ children, onClick, bg=C.text, color=C.bg, style={} }) => (
+<button onClick={onClick} style={{ width:"100%",background:bg,border:"none",borderRadius:8,padding:"16px",fontSize:15,fontWeight:500,color,cursor:"pointer",fontFamily:F.sans,letterSpacing:"0.03em",transition:"all 0.2s",display:"block",...style }}>{children}</button>
 );
 const OutlineBtn = ({ children, onClick, style={} }) => (
-<button onClick={onClick} style={{ width:"100%",background:"transparent",border:`1px solid ${C.border2}`,borderRadius:12,padding:"14px",fontSize:14,color:C.dim,cursor:"pointer",fontFamily:F.sans,...style }}>{children}</button>
+<button onClick={onClick} style={{ width:"100%",background:"transparent",border:`1px solid ${C.border2}`,borderRadius:8,padding:"14px",fontSize:14,color:C.muted,cursor:"pointer",fontFamily:F.sans,...style }}>{children}</button>
 );
 const Label = ({ children }) => <div style={{ fontSize:9,letterSpacing:3,color:C.amber,textTransform:"uppercase",marginBottom:8,fontFamily:F.sans }}>{children}</div>;
 const Divider = () => <div style={{ height:1,background:C.border,margin:"24px 0" }} />;
@@ -304,22 +310,26 @@ return (
 
 function RankQ({ options, onAnswer }) {
 const [items,setItems]=useState(options);
-const [dragging,setDragging]=useState(null);
-const drop=i=>{if(dragging===null||dragging===i)return;const n=[...items];const[m]=n.splice(dragging,1);n.splice(i,0,m);setItems(n);setDragging(null);};
+const move=(i,dir)=>{const j=i+dir;if(j<0||j>=items.length)return;const n=[...items];[n[i],n[j]]=[n[j],n[i]];setItems(n);};
 return (
 <div>
-<p style={{ fontSize:12,color:C.dim,marginBottom:12,fontFamily:F.sans }}>Drag to reorder — top two weighted most</p>
+<p style={{ fontSize:12,color:C.dim,marginBottom:12,fontFamily:F.sans }}>Tap ↑ ↓ to rank — your top two choices count most</p>
 <div style={{ display:"flex",flexDirection:"column",gap:8,marginBottom:18 }}>
 {items.map((item,i)=>(
-<div key={item.id} draggable onDragStart={()=>setDragging(i)} onDragOver={e=>e.preventDefault()} onDrop={()=>drop(i)}
-style={{ display:"flex",gap:12,alignItems:"center",background:i<2?"#0c0b00":C.surface,border:`1px solid ${i<2?C.amber+"33":C.border}`,borderRadius:10,padding:"12px 14px",cursor:"grab" }}>
-<span style={{ fontSize:11,fontWeight:800,color:i<2?C.amber:"#2a2a2a",minWidth:16,fontFamily:F.sans }}>{i+1}</span>
-<div><div style={{ fontSize:14,color:i<2?C.text:C.dim,fontFamily:F.sans }}>{item.label}</div><div style={{ fontSize:11,color:"#444",fontFamily:F.sans }}>{item.desc}</div></div>
-<span style={{ marginLeft:"auto",color:"#2a2a2a" }}>⠿</span>
+<div key={item.id} style={{ display:"flex",gap:12,alignItems:"center",background:i<2?"#f5e6d0":C.surface,border:`1px solid ${i<2?C.amber:C.border}`,borderRadius:10,padding:"12px 14px" }}>
+<span style={{ fontSize:12,fontWeight:600,color:i<2?C.amber:C.dim,minWidth:20,fontFamily:F.serif }}>{i+1}</span>
+<div style={{flex:1}}>
+  <div style={{ fontSize:14,color:i<2?C.text:C.muted,fontFamily:F.sans,fontWeight:i<2?500:400 }}>{item.label}</div>
+  <div style={{ fontSize:11,color:C.dim,fontFamily:F.sans,marginTop:2 }}>{item.desc}</div>
+</div>
+<div style={{display:"flex",flexDirection:"column",gap:3}}>
+  <button onClick={()=>move(i,-1)} disabled={i===0} style={{background:i===0?"transparent":C.surface2,border:`1px solid ${C.border}`,borderRadius:4,width:28,height:26,cursor:i===0?"default":"pointer",color:i===0?C.border:C.muted,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>↑</button>
+  <button onClick={()=>move(i,1)} disabled={i===items.length-1} style={{background:i===items.length-1?"transparent":C.surface2,border:`1px solid ${C.border}`,borderRadius:4,width:28,height:26,cursor:i===items.length-1?"default":"pointer",color:i===items.length-1?C.border:C.muted,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>↓</button>
+</div>
 </div>
 ))}
 </div>
-<Btn onClick={()=>onAnswer(items.slice(0,2).map(x=>x.label).join(" + "))}>Confirm →</Btn>
+<Btn onClick={()=>onAnswer(items.slice(0,2).map(x=>x.label).join(", "))}>Confirm top 2 →</Btn>
 </div>
 );
 }
@@ -349,7 +359,7 @@ onMouseLeave={()=>setTip(null)}>
 );
 })}
 </svg>
-{tip&&<div style={{ position:"fixed",left:Math.min(tip.x+12,window.innerWidth-190),top:tip.y-50,zIndex:9999,background:"#0a0a0a",border:`1px solid ${tip.n.color}55`,borderRadius:10,padding:"10px 14px",pointerEvents:"none",minWidth:170,fontFamily:F.sans }}>
+{tip&&<div style={{ position:"fixed",left:Math.min(tip.x+12,window.innerWidth-190),top:tip.y-50,zIndex:9999,background:"#f7f3ee",border:`1px solid ${tip.n.color}55`,borderRadius:10,padding:"10px 14px",pointerEvents:"none",minWidth:170,fontFamily:F.sans }}>
 <div style={{fontSize:12,fontWeight:700,color:tip.n.color,marginBottom:4}}>{tip.n.label}</div>
 <div style={{fontSize:11,color:C.muted,marginBottom:2}}>👥 {fmt(tip.n.practitioners)} practitioners</div>
 <div style={{fontSize:11,color:C.muted}}>💰 ₹{tip.n.marketCrore>=1000?`${(tip.n.marketCrore/1000).toFixed(0)}K`:tip.n.marketCrore} Cr · {tip.n.growthYoY}% growth</div>
@@ -372,7 +382,7 @@ return (
 <ScoreArc score={score} size={sz} />
 </div>
 {!mini&&<p style={{ fontSize:13,color:"#ccc",lineHeight:1.6,margin:"0 0 14px",fontStyle:"italic",fontFamily:F.serif }}>"{positioning}"</p>}
-<div style={{ background:"#0a0900",border:`1px solid ${C.amber}22`,borderRadius:mini?8:10,padding:mini?"8px 10px":"10px 12px" }}>
+<div style={{ background:"#f7f3ee",border:`1px solid ${C.amber}22`,borderRadius:mini?8:10,padding:mini?"8px 10px":"10px 12px" }}>
 <div style={{ fontSize:9,color:C.amber,letterSpacing:1.5,textTransform:"uppercase",marginBottom:4,fontFamily:F.sans }}>My Next Move</div>
 <div style={{ fontSize:mini?12:13,fontWeight:600,color:C.text,fontFamily:F.sans }}>{idea.title}</div>
 {!mini&&<div style={{ fontSize:11,color:C.dim,marginTop:2,fontFamily:F.sans }}>{idea.monthly}/month projected</div>}
@@ -715,7 +725,7 @@ return (
   </div>
 
   {/* Chosen idea */}
-  <div style={{ background:"#0a0900",border:`1px solid ${C.amber}22`,borderRadius:12,padding:"14px",marginBottom:16 }}>
+  <div style={{ background:"#f7f3ee",border:`1px solid ${C.amber}22`,borderRadius:12,padding:"14px",marginBottom:16 }}>
     <div style={{ fontSize:9,color:C.amber,letterSpacing:2,textTransform:"uppercase",marginBottom:8,fontFamily:F.sans }}>Chosen Idea</div>
     <div style={{ fontFamily:F.sans,fontSize:14,fontWeight:700,color:C.text,marginBottom:4 }}>{user.chosenIdea}</div>
     <div style={{ fontFamily:F.sans,fontSize:12,color:C.dim }}>{user.niche} · Joined {user.joined} · Last active {user.lastActive}</div>
@@ -849,7 +859,7 @@ return (
             {Object.entries(MOCK.abTests).map(([cell,d])=>{
               const isWinner=Object.values(MOCK.abTests).every(dd=>dd.avgLTV<=d.avgLTV);
               return(
-                <div key={cell} style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr",borderBottom:`1px solid ${C.border}`,background:cell===abCell?"#0c0b00":isWinner?"#060f06":"transparent" }}>
+                <div key={cell} style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr",borderBottom:`1px solid ${C.border}`,background:cell===abCell?"#fef8ef":isWinner?"#f0f8f0":"transparent" }}>
                   <div style={{ padding:"10px 6px",fontSize:12,fontWeight:800,color:isWinner?C.green:cell===abCell?C.amber:C.dim,textAlign:"center" }}>{cell}{isWinner?" ★":""}</div>
                   <div style={{ padding:"10px 6px",fontSize:12,color:C.text,textAlign:"center" }}>{pct(d.convRate)}</div>
                   <div style={{ padding:"10px 6px",fontSize:12,color:isWinner?C.green:C.text,fontWeight:isWinner?700:400,textAlign:"center" }}>₹{d.avgLTV}</div>
@@ -882,7 +892,7 @@ return (
               </div>
             );
           })}
-          <div style={{ background:"#060f06",border:`1px solid ${C.green}33`,borderRadius:12,padding:"14px",marginTop:12 }}>
+          <div style={{ background:"#f0f8f0",border:`1px solid ${C.green}33`,borderRadius:12,padding:"14px",marginTop:12 }}>
             <div style={{ fontSize:12,color:C.green,fontWeight:700,marginBottom:6 }}>3 / 4 thresholds met</div>
             <div style={{ fontSize:12,color:C.dim,lineHeight:1.6 }}>WhatsApp share rate (12% vs 20% target) is the only blocker. Improving share card UX unlocks the Deep Dive tier.</div>
           </div>
@@ -1618,7 +1628,15 @@ const q=QUESTIONS[qIdx];
 
 useEffect(()=>{ Analytics.track("screen_viewed",{screen:view,ab_cell:abCell}); },[view]);
 
-const go=v=>{ setView(v); setTimeout(()=>topRef.current?.scrollIntoView({behavior:"smooth"}),50); };
+const RESUMABLE=[V.GATE,V.WELCOME,V.DECISION,V.COMMITMENT,V.ASSESSMENT,V.FIRSTSTEP,V.MARKET,V.ROADMAP,V.BUNDLE_REVEAL,V.SHARE];
+const go=v=>{
+  setView(v);
+  if(mobile&&RESUMABLE.includes(v)){
+    const u=UserState.get(mobile)||{};
+    UserState.set(mobile,{...u,last_view:v});
+  }
+  setTimeout(()=>topRef.current?.scrollIntoView({behavior:"smooth"}),50);
+};
 const copy=(txt,set)=>{ navigator.clipboard?.writeText(txt).catch(()=>{}); set(true); setTimeout(()=>set(false),2500); };
 
 const handleMobile=()=>{
@@ -1635,8 +1653,17 @@ const handleOtp=()=>{
 if(otpInput.replace(/\D/g,"")!=="1234"){ setOtpError("Incorrect OTP. Please try again."); return; }
 Analytics.track("otp_verified",{mobile});
 if(!UserState.get(mobile)) UserState.set(mobile,{mobile_number:mobile,retake_count:0,blueprints:[],referral_code:`BOLT-${mobile.slice(-4).toUpperCase()}`,ab_cell:abCell});
-Analytics.track("quiz_started",{mobile});
-go(V.QUIZ);
+const saved=UserState.get(mobile);
+if(saved?.last_view&&RESUMABLE.includes(saved.last_view)&&saved?.last_blueprint){
+  setBlueprint(saved.last_blueprint);
+  if(saved.quiz_answers)setAnswers(saved.quiz_answers);
+  Analytics.track("session_resumed",{mobile,last_view:saved.last_view});
+  setView(saved.last_view);
+  setTimeout(()=>topRef.current?.scrollIntoView({behavior:"smooth"}),50);
+}else{
+  Analytics.track("quiz_started",{mobile});
+  go(V.QUIZ);
+}
 };
 
 const handleQAnswer=val=>{
@@ -1646,11 +1673,18 @@ setAnswers(up); setTextVal(""); setMultiSel([]);
 if(qIdx<QUESTIONS.length-1){ setQIdx(qIdx+1); }
 else{
   Analytics.track("quiz_completed",{mobile});
+  const u=UserState.get(mobile)||{};
+  UserState.set(mobile,{...u,quiz_answers:up,last_quiz_date:new Date().toISOString()});
   go(V.GENERATING);
   fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({answers:up})})
     .then(r=>r.ok?r.json():Promise.reject(r.status))
-    .then(generated=>{ setBlueprint(generated); go(V.GATE); })
-    .catch(()=>{ go(V.GATE); }); // falls back to DEMO on error
+    .then(generated=>{
+      setBlueprint(generated);
+      const u2=UserState.get(mobile)||{};
+      UserState.set(mobile,{...u2,last_blueprint:generated});
+      go(V.GATE);
+    })
+    .catch(()=>{ go(V.GATE); });
 }
 };
 
@@ -1734,7 +1768,7 @@ if(view===V.LANDING) return (
 
       {/* Hero */}
       <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,ease:[0.22,1,0.36,1]}} style={{marginBottom:36}}>
-        <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"#0a0900",border:`1px solid ${C.amber}33`,borderRadius:99,padding:"5px 14px",marginBottom:22}}>
+        <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"#f7f3ee",border:`1px solid ${C.amber}33`,borderRadius:99,padding:"5px 14px",marginBottom:22}}>
           <span style={{width:6,height:6,borderRadius:"50%",background:C.green,display:"inline-block"}}/>
           <span style={{fontFamily:F.sans,fontSize:11,color:C.amber,letterSpacing:"0.08em"}}>12,400+ blueprints built</span>
         </div>
@@ -1762,7 +1796,7 @@ if(view===V.LANDING) return (
       <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.25,ease:[0.22,1,0.36,1]}} style={{marginBottom:40}}>
         <div style={{animation:"float 4s ease infinite"}}><ShareCard idea={bp.ideas[0]}/></div>
         <div style={{textAlign:"center",marginTop:14}}>
-          <span style={{fontSize:11,color:C.amber,background:"#0a0900",border:`1px solid ${C.amber}33`,borderRadius:99,padding:"6px 16px",fontFamily:F.sans}}>↑ Real output · Blueprint #347</span>
+          <span style={{fontSize:11,color:C.amber,background:"#f7f3ee",border:`1px solid ${C.amber}33`,borderRadius:99,padding:"6px 16px",fontFamily:F.sans}}>↑ Real output · Blueprint #347</span>
         </div>
       </motion.div>
 
@@ -1833,7 +1867,7 @@ if(view===V.LANDING) return (
       </div>
 
       {/* What You Get */}
-      <motion.div initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true,margin:"-40px"}} transition={{duration:0.6,ease:[0.22,1,0.36,1]}} style={{background:"#0c0a00",border:`1px solid ${C.amber}22`,borderRadius:16,padding:"22px 18px",marginBottom:40}}>
+      <motion.div initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true,margin:"-40px"}} transition={{duration:0.6,ease:[0.22,1,0.36,1]}} style={{background:"#fef8ef",border:`1px solid ${C.amber}22`,borderRadius:16,padding:"22px 18px",marginBottom:40}}>
         <div style={{fontSize:9,letterSpacing:3,color:C.amber,textTransform:"uppercase",marginBottom:16,fontFamily:F.sans}}>What You Get — ₹{abConfig.gatePrice}</div>
         {["3 ideas matched to your exact profile","Honest hard truths per idea — no sugarcoating","Distribution path for your visibility preference","India market map — tap any niche for full data","Your first client outreach script (word-for-word)","Week 1 action plan — specific days and tasks","Shareable blueprint card"].map((f,i)=>(
           <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",marginBottom:10}}>
@@ -1924,7 +1958,7 @@ if(view===V.RETAKE_GATE) return (
 <h2 style={{fontFamily:F.serif,fontSize:24,fontWeight:400,color:C.text,fontStyle:"italic",margin:"0 0 12px",lineHeight:1.3}}>A lot can change in 3 months.</h2>
 <p style={{fontFamily:F.sans,fontSize:14,color:C.dim,lineHeight:1.65,margin:0}}>Your situation evolved. Your blueprint should too. Rebuild it for ₹399.</p>
 </div>
-<div style={{background:"#0c0a00",border:`1px solid ${C.amber}22`,borderRadius:14,padding:"18px",marginBottom:20}}>
+<div style={{background:"#fef8ef",border:`1px solid ${C.amber}22`,borderRadius:14,padding:"18px",marginBottom:20}}>
 <div style={{fontFamily:F.sans,fontSize:10,color:C.amber,letterSpacing:2,textTransform:"uppercase",marginBottom:12}}>What You Get</div>
 {["Fresh blueprint based on your updated answers","New ideas if your goals have changed","Updated 30-day roadmap","New first client script"].map(f=>(
 <div key={f} style={{display:"flex",gap:10,marginBottom:8}}><span style={{color:C.amber,fontSize:11}}>✦</span><span style={{fontFamily:F.sans,fontSize:13,color:"#999"}}>{f}</span></div>
@@ -1988,9 +2022,9 @@ if(view===V.GATE) return (
 <ScoreArc score={bp.score} size={140}/>
 <div style={{fontSize:11,color:C.green,letterSpacing:3,textTransform:"uppercase",marginTop:12,fontFamily:F.sans}}>{bp.scoreLabel}</div>
 </div>
-<div style={{background:"#0c0a00",border:`1px solid ${C.amber}22`,borderRadius:14,padding:"18px 16px",marginBottom:28}}>
+<div style={{background:"#fef8ef",border:`1px solid ${C.amber}22`,borderRadius:14,padding:"18px 16px",marginBottom:28}}>
 <Label>Your positioning</Label>
-<p style={{fontFamily:F.serif,fontSize:15,color:"#ddd",lineHeight:1.65,margin:0,fontStyle:"italic"}}>"{bp.positioning}"</p>
+<p style={{fontFamily:F.serif,fontSize:15,color:"#1a1612",lineHeight:1.65,margin:0,fontStyle:"italic"}}>"{bp.positioning}"</p>
 </div>
 <div style={{marginBottom:32}}>
 <Label>Your 3 ideas</Label>
@@ -2021,13 +2055,13 @@ if(view===V.WELCOME) return (
 <div style={{fontSize:52,fontWeight:800,color:C.text,lineHeight:1,marginBottom:6,fontFamily:F.sans}}>#{bp.blueprintNumber}</div>
 <div style={{fontSize:12,color:C.dim,letterSpacing:1,fontFamily:F.sans}}>Your Blueprint Number</div>
 </div>
-<div style={{background:"#060f06",border:`1px solid ${C.wa}33`,borderRadius:16,padding:"20px 16px",marginBottom:22}}>
+<div style={{background:"#f0f8f0",border:`1px solid ${C.wa}33`,borderRadius:16,padding:"20px 16px",marginBottom:22}}>
 <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:12}}>
 <svg width="18" height="18" viewBox="0 0 24 24" fill={C.wa}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 <div style={{fontSize:13,fontWeight:700,color:C.wa,fontFamily:F.sans}}>Share your link. Earn ₹150 cashback.</div>
 </div>
 <p style={{fontSize:13,color:C.muted,lineHeight:1.6,margin:"0 0 12px",fontFamily:F.sans}}>Every time someone buys using your link, ₹150 comes back to you. No cap.</p>
-<div style={{background:"#0a1a0a",borderRadius:8,padding:"10px 12px",marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+<div style={{background:"#f0f8f0",borderRadius:8,padding:"10px 12px",marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
 <span style={{fontSize:11,color:C.green,fontFamily:"monospace"}}>bolt.in/r/{bp.referralCode}</span>
 <button onClick={()=>{copy(`https://bolt.in/r/${bp.referralCode}`,setCopied);Analytics.track("referral_link_copied",{location:"welcome"});}} style={{background:"none",border:`1px solid ${C.wa}44`,borderRadius:6,padding:"4px 10px",color:C.wa,fontSize:11,cursor:"pointer",fontFamily:F.sans}}>{copied?"✓":"Copy"}</button>
 </div>
@@ -2049,7 +2083,7 @@ if(view===V.DECISION) return (
 <Label>Your 3 Ideas</Label>
 <h2 style={{fontFamily:F.serif,fontSize:22,fontWeight:400,color:C.text,lineHeight:1.3,margin:0,fontStyle:"italic"}}>One pulls harder than the others.<br/>Which one?</h2>
 </div>
-<div style={{background:"#0b0a00",border:`1px solid ${C.amber}55`,borderRadius:16,padding:"20px 16px",marginBottom:12,position:"relative"}}>
+<div style={{background:"#fef8ef",border:`1px solid ${C.amber}55`,borderRadius:16,padding:"20px 16px",marginBottom:12,position:"relative"}}>
 <div style={{position:"absolute",top:-10,right:14,background:C.amber,color:C.bg,fontSize:9,fontWeight:800,letterSpacing:1.5,padding:"3px 12px",borderRadius:99,fontFamily:F.sans}}>BEST MATCH</div>
 <div style={{fontFamily:F.sans,fontSize:17,fontWeight:700,color:C.text,marginBottom:6}}>{bp.ideas[0].title}</div>
 <div style={{fontFamily:F.serif,fontSize:14,color:C.muted,fontStyle:"italic",marginBottom:14,lineHeight:1.5}}>{bp.ideas[0].tagline}</div>
@@ -2059,12 +2093,12 @@ if(view===V.DECISION) return (
 </div>
 <Btn onClick={()=>{setChosenIdx(0);Analytics.track("idea_chosen",{idea_title:bp.ideas[0].title});go(V.COMMITMENT);}}>This Is My Move →</Btn>
 </div>
-<div style={{fontSize:10,color:"#2a2a2a",textAlign:"center",margin:"8px 0",letterSpacing:1,fontFamily:F.sans}}>OR CONSIDER</div>
+<div style={{fontSize:10,color:"#a89a8c",textAlign:"center",margin:"8px 0",letterSpacing:1,fontFamily:F.sans}}>OR CONSIDER</div>
 {[1,2].map(i=>(
 <div key={i} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px",marginBottom:10}}>
 <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
 <div style={{flex:1,paddingRight:10}}>
-<div style={{fontFamily:F.sans,fontSize:14,fontWeight:600,color:"#aaa",marginBottom:3}}>{bp.ideas[i].title}</div>
+<div style={{fontFamily:F.sans,fontSize:14,fontWeight:600,color:"#6b5f52",marginBottom:3}}>{bp.ideas[i].title}</div>
 <div style={{fontFamily:F.serif,fontSize:12,color:C.dim,fontStyle:"italic"}}>{bp.ideas[i].tagline}</div>
 </div>
 <div style={{fontSize:13,color:`${C.green}66`,fontWeight:600,flexShrink:0,fontFamily:F.sans}}>{bp.ideas[i].monthly}</div>
@@ -2115,7 +2149,7 @@ if(view===V.ASSESSMENT) return (
 <Divider/>
 <div style={{marginBottom:20}}>
 <div style={{fontSize:9,color:"#34d399",letterSpacing:2.5,textTransform:"uppercase",marginBottom:10,fontFamily:F.sans}}>Avoids Your Past Failure</div>
-<p style={{fontFamily:F.sans,fontSize:14,color:"#aaa",lineHeight:1.7,margin:0}}>{idea.failurePrevention}</p>
+<p style={{fontFamily:F.sans,fontSize:14,color:"#6b5f52",lineHeight:1.7,margin:0}}>{idea.failurePrevention}</p>
 </div>
 <div style={{marginBottom:20}}>
 <div style={{fontSize:9,color:C.red,letterSpacing:2.5,textTransform:"uppercase",marginBottom:12,fontFamily:F.sans}}>Two Things To Know</div>
@@ -2126,11 +2160,11 @@ if(view===V.ASSESSMENT) return (
 </div>
 ))}
 </div>
-<div style={{background:"#080f08",border:"1px solid #34d39922",borderRadius:12,padding:"16px",marginBottom:24}}>
+<div style={{background:"#f0f8f0",border:"1px solid #34d39922",borderRadius:12,padding:"16px",marginBottom:24}}>
 <div style={{fontSize:9,color:"#34d399",letterSpacing:2.5,textTransform:"uppercase",marginBottom:10,fontFamily:F.sans}}>How You Get Customers</div>
-<p style={{fontFamily:F.sans,fontSize:13,color:"#aaa",lineHeight:1.65,margin:0}}>{idea.distributionPath}</p>
+<p style={{fontFamily:F.sans,fontSize:13,color:"#6b5f52",lineHeight:1.65,margin:0}}>{idea.distributionPath}</p>
 </div>
-<div style={{background:"#0a0900",border:`1px solid ${C.amber}22`,borderRadius:10,padding:"14px",marginBottom:24}}>
+<div style={{background:"#f7f3ee",border:`1px solid ${C.amber}22`,borderRadius:10,padding:"14px",marginBottom:24}}>
 <p style={{fontFamily:F.serif,fontSize:15,color:C.amber,margin:0,fontStyle:"italic"}}>Still the right move. Here's your first action.</p>
 </div>
 <Btn onClick={()=>go(V.FIRSTSTEP)}>Show Me The First Step →</Btn>
@@ -2149,14 +2183,14 @@ if(view===V.FIRSTSTEP) return (
 </div>
 <div style={{marginBottom:6}}>
 <div style={{fontSize:9,color:C.green,letterSpacing:2.5,textTransform:"uppercase",marginBottom:14,fontFamily:F.sans}}>Send This Today</div>
-<div style={{background:"#0d0d0d",borderRadius:16,padding:4,border:`1px solid ${C.border}`}}>
+<div style={{background:"#f7f3ee",borderRadius:16,padding:4,border:`1px solid ${C.border}`}}>
 <div style={{padding:"10px 14px 8px",borderBottom:`1px solid ${C.border}`,display:"flex",gap:10,alignItems:"center"}}>
 <div style={{width:30,height:30,borderRadius:"50%",background:`${C.amber}22`,display:"flex",alignItems:"center",justifyContent:"center"}}>👤</div>
 <div><div style={{fontSize:12,color:C.text,fontFamily:F.sans}}>Ideal Client</div><div style={{fontSize:10,color:C.green,fontFamily:F.sans}}>online</div></div>
 </div>
 <div style={{padding:"14px 12px"}}>
-<div style={{background:"#1a1500",border:`1px solid ${C.amber}22`,borderRadius:"4px 14px 14px 14px",padding:"12px 14px",maxWidth:"88%"}}>
-<p style={{fontFamily:F.sans,fontSize:13,color:"#ddd",lineHeight:1.65,margin:0}}>{idea.firstClientScript}</p>
+<div style={{background:"#fef8ef",border:`1px solid ${C.amber}22`,borderRadius:"4px 14px 14px 14px",padding:"12px 14px",maxWidth:"88%"}}>
+<p style={{fontFamily:F.sans,fontSize:13,color:"#1a1612",lineHeight:1.65,margin:0}}>{idea.firstClientScript}</p>
 <div style={{fontSize:10,color:C.dim,textAlign:"right",marginTop:6}}>✓✓</div>
 </div>
 </div>
@@ -2167,20 +2201,23 @@ if(view===V.FIRSTSTEP) return (
 </div>
 <Divider/>
 {!promptBought?(
-<div style={{background:"linear-gradient(135deg,#0a0900,#080810)",border:`1px solid ${C.amber}33`,borderRadius:16,padding:"18px 16px"}}>
-<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-<div><div style={{fontSize:9,color:C.amber,letterSpacing:2.5,textTransform:"uppercase",marginBottom:4,fontFamily:F.sans}}>Impulse Add-On</div><div style={{fontFamily:F.sans,fontSize:15,fontWeight:700,color:C.text}}>Prompt Pack</div></div>
-<div style={{fontFamily:F.sans,fontSize:22,fontWeight:800,color:C.amber}}>₹{abConfig.promptPrice}</div>
+<div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:"20px 18px"}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+<div>
+  <div style={{fontSize:9,color:C.amber,letterSpacing:"0.14em",textTransform:"uppercase",marginBottom:4,fontFamily:F.sans,fontWeight:500}}>Move Faster</div>
+  <div style={{fontFamily:F.serif,fontSize:17,fontWeight:500,color:C.text}}>Prompt Pack</div>
 </div>
-<p style={{fontFamily:F.sans,fontSize:12,color:"#666",lineHeight:1.6,margin:"0 0 14px"}}>6 prompts built for {idea.title} — landing page, audit report, objection handler, ad creatives, proposal email, Loom script.</p>
+<div style={{fontFamily:F.serif,fontSize:22,fontWeight:500,color:C.amber}}>₹{abConfig.promptPrice}</div>
+</div>
+<p style={{fontFamily:F.sans,fontSize:13,color:C.muted,lineHeight:1.65,margin:"0 0 16px",fontWeight:300}}>6 done-for-you prompts built for {idea.title} — skip weeks of setup. Use these to start delivering value to your first client this week. Landing page, audit report, objection handler, proposal email, and more.</p>
 <Btn onClick={()=>{setPromptBought(true);Analytics.track("prompt_pack_converted",{price:abConfig.promptPrice,ab_cell:abCell});}} style={{padding:"13px",fontSize:14}}>
-Get All 6 Prompts — ₹{abConfig.promptPrice} →
+Move Faster — Get 6 Prompts · ₹{abConfig.promptPrice} →
 </Btn>
 </div>
 ):(
-<div style={{background:"#060f06",border:"1px solid #4ade8033",borderRadius:14,padding:"16px",textAlign:"center"}}>
-<div style={{fontSize:20,marginBottom:8}}>✓</div>
-<div style={{fontFamily:F.sans,fontSize:13,color:C.green,fontWeight:600}}>Prompt Pack unlocked · 6 prompts ready</div>
+<div style={{background:C.surface,border:`1px solid ${C.green}44`,borderRadius:10,padding:"16px",textAlign:"center"}}>
+<div style={{fontSize:18,marginBottom:8}}>✓</div>
+<div style={{fontFamily:F.sans,fontSize:13,color:C.green,fontWeight:500}}>Prompt Pack unlocked · 6 prompts ready to use</div>
 </div>
 )}
 <Btn onClick={()=>go(V.MARKET)} style={{marginTop:16}}>See Market Opportunity →</Btn>
@@ -2232,7 +2269,7 @@ if(view===V.ROADMAP) return (
 <div style={{width:20,height:20,borderRadius:"50%",border:`1px solid ${C.green}44`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
 <div style={{fontSize:9,color:C.green,fontFamily:F.sans}}>{i+1}</div>
 </div>
-<span style={{fontFamily:F.sans,fontSize:13,color:"#bbb",lineHeight:1.55}}>{t}</span>
+<span style={{fontFamily:F.sans,fontSize:13,color:"#6b5f52",lineHeight:1.55}}>{t}</span>
 </div>
 ))}
 </div>
@@ -2248,36 +2285,83 @@ if(view===V.ROADMAP) return (
 </div>
 ))}
 <Divider/>
-{!bundleBought?(
-<div style={{background:"linear-gradient(135deg,#080810,#0a0900)",border:`1px solid ${C.blue}33`,borderRadius:16,padding:"20px 16px"}} onClick={()=>Analytics.track("full_bundle_viewed")}>
-<div style={{fontSize:9,color:C.blue,letterSpacing:2.5,textTransform:"uppercase",marginBottom:14,fontFamily:F.sans}}>Full Bundle</div>
-<div style={{textAlign:"center",marginBottom:18}}>
-<div style={{fontFamily:F.sans,fontSize:12,color:C.dimmer,marginBottom:6}}>{idea.title} projects</div>
-<div style={{fontFamily:F.sans,fontSize:26,fontWeight:800,color:C.green}}>₹{(bp.projectedMonth3/100000).toFixed(1)}L/month</div>
-<div style={{fontFamily:F.sans,fontSize:11,color:C.dimmer,margin:"4px 0 12px"}}>by month 3</div>
-<div style={{height:1,background:C.border,margin:"12px 0"}}/>
-<div style={{fontFamily:F.sans,fontSize:11,color:C.dim,marginBottom:4}}>Full Bundle = 2% of that → one time</div>
-<div style={{fontFamily:F.sans,fontSize:34,fontWeight:800,color:C.text}}>₹{bundlePrice.toLocaleString("en-IN")}</div>
+{!bundleBought&&(
+<div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:12,padding:"24px 20px"}} onClick={()=>Analytics.track("full_bundle_viewed")}>
+<div style={{fontSize:9,color:C.amber,letterSpacing:"0.14em",textTransform:"uppercase",marginBottom:16,fontFamily:F.sans,fontWeight:500}}>Your Complete Arsenal</div>
+<div style={{textAlign:"center",marginBottom:20}}>
+<div style={{fontFamily:F.sans,fontSize:13,color:C.dim,marginBottom:8,fontWeight:300}}>{idea.title} · Month 3 target</div>
+<div style={{fontFamily:F.serif,fontSize:32,fontWeight:500,color:C.text}}>₹{(bp.projectedMonth3/100000).toFixed(1)}L/month</div>
+<div style={{fontFamily:F.sans,fontSize:12,color:C.muted,margin:"6px 0 16px",fontWeight:300}}>Unlock everything you need to get there</div>
+<div style={{height:1,background:C.border,margin:"0 0 16px"}}/>
+<div style={{fontFamily:F.sans,fontSize:12,color:C.muted,marginBottom:4,fontWeight:300}}>One-time · 2% of your Month 3 target</div>
+<div style={{fontFamily:F.serif,fontSize:30,fontWeight:500,color:C.amber}}>₹{bundlePrice.toLocaleString("en-IN")}</div>
 </div>
-{["Pressure Test + Go/No Go verdict","5 hard questions answered honestly","Months 1–3 full roadmap","30-day re-planning prompt","Prompt Pack included"].map(f=>(
-<div key={f} style={{display:"flex",gap:8,alignItems:"center",marginBottom:8}}>
-<span style={{color:C.blue,fontSize:11}}>✦</span>
-<span style={{fontFamily:F.sans,fontSize:12,color:C.muted}}>{f}</span>
+{["Full 90-day roadmap with monthly milestones","Pressure test + honest go/no-go verdict","5 hard questions answered with specifics","30-day replanning prompt (use any time)","6 done-for-you prompt pack included"].map(f=>(
+<div key={f} style={{display:"flex",gap:10,alignItems:"flex-start",marginBottom:10}}>
+<div style={{width:18,height:18,borderRadius:"50%",background:"#f5e6d0",border:`1px solid ${C.amber}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
+  <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L2.8 4.8L7 1" stroke={C.amber} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+</div>
+<span style={{fontFamily:F.sans,fontSize:13,color:C.muted,fontWeight:300,lineHeight:1.5}}>{f}</span>
 </div>
 ))}
-<Btn bg={C.text} color={C.bg} onClick={()=>{setBundleBought(true);Analytics.track("full_bundle_converted",{price:bundlePrice,ab_cell:abCell});}} style={{fontWeight:800,marginTop:14}}>
-Get Full Bundle — ₹{bundlePrice.toLocaleString("en-IN")} →
+<Btn onClick={()=>{setBundleBought(true);Analytics.track("full_bundle_converted",{price:bundlePrice,ab_cell:abCell});go(V.BUNDLE_REVEAL);}} style={{marginTop:18}}>
+Unlock My Complete Arsenal — ₹{bundlePrice.toLocaleString("en-IN")} →
 </Btn>
-<div style={{textAlign:"center",marginTop:8,fontFamily:F.sans,fontSize:11,color:C.dimmer}}>2% to potentially unlock ₹{(bp.projectedMonth3/100000).toFixed(1)}L/month</div>
-</div>
-):(
-<div style={{background:"#060f06",border:"1px solid #4ade8033",borderRadius:14,padding:"20px",textAlign:"center"}}>
-<div style={{fontSize:24,marginBottom:8}}>⚡</div>
-<div style={{fontFamily:F.sans,fontSize:14,color:C.green,fontWeight:700}}>Full Bundle Unlocked</div>
+<div style={{textAlign:"center",marginTop:10,fontFamily:F.sans,fontSize:11,color:C.dim,fontWeight:300}}>One-time · everything you need to start and grow</div>
 </div>
 )}
 <Btn onClick={()=>go(V.SHARE)} style={{marginTop:16}}>Get My Share Card →</Btn>
 <div style={{height:40}}/>
+</Pad>
+</Phone>
+);
+
+// - BUNDLE REVEAL -
+if(view===V.BUNDLE_REVEAL) return (
+<Phone noDots view={view} topRef={topRef}>
+<Pad>
+<motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{duration:0.6}}>
+<div style={{paddingTop:40,paddingBottom:8,textAlign:"center"}}>
+  <motion.div initial={{scale:0.7,opacity:0}} animate={{scale:1,opacity:1}} transition={{duration:0.7,ease:[0.22,1,0.36,1]}}>
+    <div style={{width:72,height:72,borderRadius:"50%",background:"#f5e6d0",border:`2px solid ${C.amber}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontSize:32}}>⚡</div>
+  </motion.div>
+  <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.2}}>
+    <div style={{fontSize:9,color:C.amber,letterSpacing:"0.18em",textTransform:"uppercase",marginBottom:10,fontFamily:F.sans,fontWeight:500}}>Your Secret Weapon Is Ready</div>
+    <h2 style={{fontFamily:F.serif,fontSize:26,fontWeight:400,color:C.text,lineHeight:1.25,margin:"0 0 8px",letterSpacing:"-0.01em"}}>Your Complete Arsenal<br/><em style={{fontStyle:"italic",color:C.amber}}>for {idea.title}</em></h2>
+    <p style={{fontFamily:F.sans,fontSize:13,color:C.dim,fontWeight:300,lineHeight:1.65,margin:"0 0 28px"}}>Everything you need to go from zero to first client — and beyond.</p>
+  </motion.div>
+</div>
+
+{[
+  {delay:0.3,label:"Your Positioning",content:`"${bp.positioning}"`},
+  {delay:0.4,label:"90-Day Roadmap",content:[
+    bp.week1?.join(" · ")||"Week 1 tasks ready",
+    `Week 2: ${bp.week2||""}`,
+    `Week 3: ${bp.week3||""}`,
+    `Week 4: ${bp.week4||""}`
+  ].join("\n")},
+  {delay:0.5,label:"Hard Truths (Know Before You Start)",content:idea.hardTruths?.join("\n\n")||idea.fit},
+  {delay:0.6,label:"How to Reach Your First Client",content:idea.distributionPath},
+  {delay:0.7,label:"Your First Client Script",content:idea.firstClientScript},
+].map(({delay,label,content})=>(
+  <motion.div key={label} initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.5,delay}}>
+    <div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"18px 16px",marginBottom:12}}>
+      <div style={{fontSize:9,color:C.amber,letterSpacing:"0.14em",textTransform:"uppercase",marginBottom:10,fontFamily:F.sans,fontWeight:500}}>{label}</div>
+      <p style={{fontFamily:F.sans,fontSize:13,color:C.muted,lineHeight:1.7,margin:0,fontWeight:300,whiteSpace:"pre-line"}}>{content}</p>
+    </div>
+  </motion.div>
+))}
+
+<motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.5,delay:0.85}}>
+  <div style={{background:"#f5e6d0",border:`1px solid ${C.amber}`,borderRadius:10,padding:"18px 16px",marginBottom:20,textAlign:"center"}}>
+    <div style={{fontFamily:F.serif,fontSize:13,color:C.amber,fontWeight:400,fontStyle:"italic",lineHeight:1.65}}>
+      "You now have everything a professional advisor charges ₹50,000 to build for you. It's yours. Start this week."
+    </div>
+  </div>
+  <Btn onClick={()=>go(V.SHARE)} style={{marginBottom:10}}>Get Your Blueprint Card →</Btn>
+</motion.div>
+<div style={{height:40}}/>
+</motion.div>
 </Pad>
 </Phone>
 );
@@ -2315,7 +2399,7 @@ if(view===V.SHARE) return (
 </div>
 <div style={{textAlign:"center",padding:"16px 0 8px"}}>
 <div style={{fontFamily:F.sans,fontSize:16,fontWeight:800,color:C.amber,letterSpacing:1,marginBottom:4}}>⚡ bolt</div>
-<div style={{fontFamily:F.sans,fontSize:9,color:"#2a2a2a",letterSpacing:2}}>YOUR NEXT MOVE, BUILT</div>
+<div style={{fontFamily:F.sans,fontSize:9,color:"#a89a8c",letterSpacing:2}}>YOUR NEXT MOVE, BUILT</div>
 </div>
 <OutlineBtn onClick={()=>{setView(V.LANDING);setBlueprint(null);setQIdx(0);setAnswers({});setChosenIdx(0);setPromptBought(false);setBundleBought(false);setWaSent(false);setMobileInput("");setOtpInput("");setTextVal("");setMultiSel([]);}} style={{borderRadius:10,marginBottom:10}}>← Start Over</OutlineBtn>
 <button onClick={()=>setShowAdmin(true)} style={{display:"none"}}>View Analytics Dashboard</button>
