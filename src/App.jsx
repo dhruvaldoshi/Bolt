@@ -1574,6 +1574,17 @@ function LandingIN({onStart}){
   );
 }
 
+function Phone({children,noDots,view,topRef}){return(
+<div style={{ minHeight:"100vh",background:C.bg,display:"flex",justifyContent:"center" }}>
+  <style>{`*{box-sizing:border-box;-webkit-tap-highlight-color:transparent} @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}} input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none} ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:${C.border2}}`}</style>
+  <div style={{ width:"100%",maxWidth:390,minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column" }}>
+    {!noDots&&<Dots view={view}/>}
+    <div ref={topRef} style={{ flex:1,overflowY:"auto" }}>{children}</div>
+  </div>
+</div>
+);}
+function Pad({children}){return <div style={{ padding:"0 22px" }}>{children}</div>;}
+
 // - MAIN APP -
 export default function App() {
 const [view,setView]=useState(V.LANDING);
@@ -1643,21 +1654,6 @@ else{
 }
 };
 
-const Phone=({children,noDots})=>(
-<div style={{ minHeight:"100vh",background:C.bg,display:"flex",justifyContent:"center" }}>
-
-
-  <style>{`*{box-sizing:border-box;-webkit-tap-highlight-color:transparent} @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}} input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none} ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:${C.border2}}`}</style>
-  <div style={{ width:"100%",maxWidth:390,minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column" }}>
-    {!noDots&&<Dots view={view}/>}
-    <div ref={topRef} style={{ flex:1,overflowY:"auto" }}>{children}</div>
-  </div>
-</div>
-
-
-);
-const Pad=({children})=><div style={{ padding:"0 22px" }}>{children}</div>;
-
 const renderQInput=()=>{
 if(q.type==="choice") return <div style={{display:"flex",flexDirection:"column",gap:10}}>{q.options.map(o=><button key={o} onClick={()=>handleQAnswer(o)} style={{background:"transparent",border:`1px solid ${C.border2}`,borderRadius:10,padding:"14px 16px",textAlign:"left",color:C.text,fontSize:14,cursor:"pointer",fontFamily:F.sans,transition:"all 0.15s"}}>{o}</button>)}</div>;
 if(q.type==="choice_d") return <div style={{display:"flex",flexDirection:"column",gap:10}}>{q.options.map(o=><button key={o.v} onClick={()=>handleQAnswer(o.l)} style={{background:"transparent",border:`1px solid ${C.border2}`,borderRadius:10,padding:"14px 16px",textAlign:"left",cursor:"pointer",fontFamily:F.sans,transition:"all 0.15s"}}><div style={{fontSize:14,color:C.text,marginBottom:2}}>{o.l}</div><div style={{fontSize:11,color:C.dim}}>{o.d}</div></button>)}</div>;
@@ -1674,6 +1670,42 @@ return null;
 
 // - INDIA LANDING ROUTE -
 if(isIN&&view===V.LANDING) return <LandingIN onStart={()=>{window.history.pushState({},"","/");go(V.MOBILE);}}/>;
+
+// - INDIA MOBILE -
+if(isIN&&view===V.MOBILE) return(
+  <div ref={topRef} style={{minHeight:"100vh",background:CI.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 32px"}}>
+    <div style={{width:"100%",maxWidth:440}}>
+      <div style={{textAlign:"center",marginBottom:48}}>
+        <div style={{fontFamily:FI.serif,fontSize:22,fontWeight:500,color:CI.text,letterSpacing:"-0.02em",marginBottom:44}}>Bolt</div>
+        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,5vw,34px)",fontWeight:400,color:CI.text,lineHeight:1.25,margin:"0 0 14px",letterSpacing:"-0.01em"}}>Save your blueprint with one number.</h2>
+        <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,lineHeight:1.7,margin:0}}>Used to save your results and send to WhatsApp. Nothing else.</p>
+      </div>
+      <div style={{display:"flex",background:CI.white,border:`1px solid ${CI.border}`,borderRadius:8,overflow:"hidden",boxShadow:"0 2px 16px rgba(0,0,0,0.04)",marginBottom:14}}>
+        <div style={{padding:"0 16px",background:CI.surface,borderRight:`1px solid ${CI.border}`,display:"flex",alignItems:"center",fontSize:14,color:CI.muted,fontFamily:FI.sans,flexShrink:0}}>🇮🇳 +91</div>
+        <input type="text" inputMode="numeric" maxLength={10} value={mobileInput} onChange={e=>setMobileInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleMobile()} placeholder="10-digit mobile number" style={{flex:1,background:"transparent",border:"none",padding:"18px 16px",color:CI.text,fontSize:16,fontFamily:FI.sans,outline:"none"}}/>
+      </div>
+      <motion.button onClick={handleMobile} style={{width:"100%",background:CI.text,color:CI.bg,border:"none",borderRadius:6,padding:"18px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",marginBottom:14}} whileHover={{background:CI.accent}} whileTap={{scale:0.98}} transition={{duration:0.15}}>Send OTP →</motion.button>
+      <p style={{fontFamily:FI.sans,fontSize:12,color:CI.dim,textAlign:"center",margin:"0 0 28px",fontWeight:300}}>No spam. No marketing messages. Ever.</p>
+      <motion.button onClick={()=>go(V.LANDING)} style={{background:"transparent",border:`1px solid ${CI.border}`,borderRadius:6,padding:"12px 24px",fontFamily:FI.sans,fontSize:13,color:CI.muted,cursor:"pointer",display:"block",margin:"0 auto"}} whileHover={{borderColor:CI.text,color:CI.text}} transition={{duration:0.15}}>← Back</motion.button>
+    </div>
+  </div>
+);
+
+// - INDIA OTP -
+if(isIN&&view===V.OTP) return(
+  <div ref={topRef} style={{minHeight:"100vh",background:CI.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 32px"}}>
+    <div style={{width:"100%",maxWidth:440,textAlign:"center"}}>
+      <div style={{fontFamily:FI.serif,fontSize:22,fontWeight:500,color:CI.text,letterSpacing:"-0.02em",marginBottom:44}}>Bolt</div>
+      <div style={{fontSize:36,marginBottom:20}}>📱</div>
+      <h2 style={{fontFamily:FI.serif,fontSize:"clamp(22px,5vw,32px)",fontWeight:400,color:CI.text,lineHeight:1.25,margin:"0 0 12px",letterSpacing:"-0.01em"}}>Check your messages.</h2>
+      <p style={{fontFamily:FI.sans,fontSize:15,color:CI.muted,fontWeight:300,margin:"0 0 36px",lineHeight:1.7}}>OTP sent to +91 {mobileInput.slice(0,5)}XXXXX</p>
+      <input type="text" inputMode="numeric" maxLength={4} value={otpInput} onChange={e=>{setOtpInput(e.target.value);setOtpError("");}} onKeyDown={e=>e.key==="Enter"&&handleOtp()} placeholder="· · · ·" style={{width:"100%",background:CI.white,border:`1.5px solid ${otpError?"#e53e3e":CI.border}`,borderRadius:8,padding:"20px",color:CI.text,fontSize:32,fontFamily:FI.serif,outline:"none",textAlign:"center",letterSpacing:12,boxShadow:"0 2px 16px rgba(0,0,0,0.04)",marginBottom:8}}/>
+      {otpError&&<div style={{fontSize:13,color:"#e53e3e",marginBottom:12,fontFamily:FI.sans,fontWeight:300}}>{otpError}</div>}
+      <motion.button onClick={handleOtp} style={{width:"100%",background:CI.text,color:CI.bg,border:"none",borderRadius:6,padding:"18px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",marginTop:8,marginBottom:14}} whileHover={{background:CI.accent}} whileTap={{scale:0.98}} transition={{duration:0.15}}>Verify & Continue →</motion.button>
+      <motion.button onClick={()=>go(V.MOBILE)} style={{background:"transparent",border:"none",padding:"10px",fontFamily:FI.sans,fontSize:13,color:CI.muted,cursor:"pointer"}} whileHover={{color:CI.text}} transition={{duration:0.15}}>← Change number</motion.button>
+    </div>
+  </div>
+);
 
 // - LANDING -
 if(view===V.LANDING) return (
@@ -1828,7 +1860,7 @@ if(view===V.LANDING) return (
 
 // - MOBILE -
 if(view===V.MOBILE) return (
-<Phone noDots>
+<Phone noDots view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"40px 0 32px",textAlign:"center"}}>
 <div style={{fontSize:16,fontWeight:800,color:C.amber,fontFamily:F.sans,marginBottom:32}}>⚡ bolt</div>
@@ -1838,7 +1870,7 @@ if(view===V.MOBILE) return (
 <div style={{marginBottom:14}}>
 <div style={{display:"flex",background:C.surface,border:`1px solid ${C.border2}`,borderRadius:12,overflow:"hidden"}}>
 <div style={{padding:"0 16px",background:"#0e0e0e",borderRight:`1px solid ${C.border2}`,display:"flex",alignItems:"center",fontSize:14,color:C.muted,fontFamily:F.sans,flexShrink:0}}>🇮🇳 +91</div>
-<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={10} value={mobileInput} onChange={e=>setMobileInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleMobile()} placeholder="10-digit mobile number" style={{flex:1,background:"transparent",border:"none",padding:"16px",color:C.text,fontSize:16,fontFamily:F.sans,outline:"none"}}/>
+<input type="text" inputMode="numeric" maxLength={10} value={mobileInput} onChange={e=>setMobileInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleMobile()} placeholder="10-digit mobile number" style={{flex:1,background:"transparent",border:"none",padding:"16px",color:C.text,fontSize:16,fontFamily:F.sans,outline:"none"}}/>
 </div>
 </div>
 <Btn onClick={handleMobile} style={{marginBottom:14}}>Send OTP →</Btn>
@@ -1860,7 +1892,7 @@ if(view===V.MOBILE) return (
 
 // - OTP -
 if(view===V.OTP) return (
-<Phone noDots>
+<Phone noDots view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"40px 0 32px",textAlign:"center"}}>
 <div style={{fontSize:16,fontWeight:800,color:C.amber,fontFamily:F.sans,marginBottom:28}}>⚡ bolt</div>
@@ -1869,7 +1901,7 @@ if(view===V.OTP) return (
 <p style={{fontFamily:F.sans,fontSize:14,color:C.dim,margin:0}}>OTP sent to +91 {mobileInput.slice(0,5)}XXXXX</p>
 </div>
 <div style={{marginBottom:14}}>
-<input type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={otpInput} onChange={e=>{setOtpInput(e.target.value);setOtpError("");}} onKeyDown={e=>e.key==="Enter"&&handleOtp()} placeholder="· · · ·" style={{width:"100%",background:C.surface,border:`1px solid ${otpError?C.red:C.border2}`,borderRadius:12,padding:"16px",color:C.text,fontSize:28,fontFamily:F.sans,outline:"none",textAlign:"center",letterSpacing:16}}/>
+<input type="text" inputMode="numeric" maxLength={4} value={otpInput} onChange={e=>{setOtpInput(e.target.value);setOtpError("");}} onKeyDown={e=>e.key==="Enter"&&handleOtp()} placeholder="· · · ·" style={{width:"100%",background:C.surface,border:`1px solid ${otpError?C.red:C.border2}`,borderRadius:12,padding:"16px",color:C.text,fontSize:28,fontFamily:F.sans,outline:"none",textAlign:"center",letterSpacing:16}}/>
 {otpError&&<div style={{fontSize:12,color:C.red,textAlign:"center",marginTop:8,fontFamily:F.sans}}>{otpError}</div>}
 </div>
 <Btn onClick={handleOtp} style={{marginBottom:14}}>Verify & Continue →</Btn>
@@ -1881,7 +1913,7 @@ if(view===V.OTP) return (
 
 // - RETAKE GATE -
 if(view===V.RETAKE_GATE) return (
-<Phone noDots>
+<Phone noDots view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"40px 0 28px",textAlign:"center"}}>
 <div style={{fontSize:16,fontWeight:800,color:C.amber,fontFamily:F.sans,marginBottom:28}}>⚡ bolt</div>
@@ -1909,7 +1941,7 @@ Rebuild My Blueprint — ₹399 →
 
 // - QUIZ -
 if(view===V.QUIZ) return (
-<Phone noDots>
+<Phone noDots view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"20px 0 22px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
 <div style={{fontSize:14,fontWeight:800,color:C.amber,fontFamily:F.sans}}>⚡ bolt</div>
@@ -1931,7 +1963,7 @@ if(view===V.QUIZ) return (
 
 // - GENERATING -
 if(view===V.GENERATING) return (
-<Phone noDots>
+<Phone noDots view={view} topRef={topRef}>
 <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100vh",gap:0,padding:"0 32px",textAlign:"center"}}>
   <div style={{fontSize:40,marginBottom:28,animation:"float 2s ease infinite"}}>⚡</div>
   <h2 style={{fontFamily:F.serif,fontSize:24,fontWeight:400,color:C.text,fontStyle:"italic",margin:"0 0 12px",lineHeight:1.3}}>Building your blueprint...</h2>
@@ -1946,7 +1978,7 @@ if(view===V.GENERATING) return (
 
 // - GATE -
 if(view===V.GATE) return (
-<Phone noDots>
+<Phone noDots view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"24px 0 0",display:"flex",justifyContent:"space-between",marginBottom:32}}>
 <div style={{fontSize:16,fontWeight:800,color:C.amber,fontFamily:F.sans}}>⚡ bolt</div>
@@ -1982,7 +2014,7 @@ Unlock My Blueprint — ₹{abConfig.gatePrice}
 
 // - WELCOME + REFERRAL -
 if(view===V.WELCOME) return (
-<Phone>
+<Phone view={view} topRef={topRef}>
 <Pad>
 <div style={{textAlign:"center",padding:"32px 0 24px"}}>
 <div style={{fontSize:9,letterSpacing:3,color:C.amber,textTransform:"uppercase",marginBottom:14,fontFamily:F.sans}}>⚡ bolt</div>
@@ -2011,7 +2043,7 @@ Share on WhatsApp →
 
 // - DECISION -
 if(view===V.DECISION) return (
-<Phone>
+<Phone view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"24px 0 20px"}}>
 <Label>Your 3 Ideas</Label>
@@ -2047,7 +2079,7 @@ if(view===V.DECISION) return (
 
 // - COMMITMENT -
 if(view===V.COMMITMENT) return (
-<Phone>
+<Phone view={view} topRef={topRef}>
 <Pad>
 <div style={{textAlign:"center",padding:"48px 0 28px"}}>
 <div style={{fontSize:36,marginBottom:16}}>🔒</div>
@@ -2073,7 +2105,7 @@ Send on WhatsApp →
 
 // - ASSESSMENT -
 if(view===V.ASSESSMENT) return (
-<Phone>
+<Phone view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"24px 0 20px"}}>
 <Label>Honest Assessment</Label>
@@ -2109,7 +2141,7 @@ if(view===V.ASSESSMENT) return (
 
 // - FIRST STEP + PROMPT PACK -
 if(view===V.FIRSTSTEP) return (
-<Phone>
+<Phone view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"24px 0 16px"}}>
 <Label>This Week</Label>
@@ -2159,7 +2191,7 @@ Get All 6 Prompts — ₹{abConfig.promptPrice} →
 
 // - MARKET MAP -
 if(view===V.MARKET) return (
-<Phone>
+<Phone view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"24px 0 16px"}}>
 <Label>Market Opportunity</Label>
@@ -2184,7 +2216,7 @@ if(view===V.MARKET) return (
 
 // - ROADMAP + FULL BUNDLE -
 if(view===V.ROADMAP) return (
-<Phone>
+<Phone view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"24px 0 16px"}}>
 <Label>Your 30-Day Plan</Label>
@@ -2252,7 +2284,7 @@ Get Full Bundle — ₹{bundlePrice.toLocaleString("en-IN")} →
 
 // - SHARE -
 if(view===V.SHARE) return (
-<Phone>
+<Phone view={view} topRef={topRef}>
 <Pad>
 <div style={{padding:"24px 0 18px",textAlign:"center"}}>
 <Label>Your Blueprint Card</Label>
