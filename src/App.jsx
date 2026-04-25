@@ -1173,9 +1173,47 @@ const FI={serif:"'Playfair Display',Georgia,serif",sans:"Inter,-apple-system,san
   const s=document.createElement("style");s.id="bolt-in-styles";
   s.textContent=`
     @keyframes morphShape{0%,100%{border-radius:62% 38% 46% 54%/60% 44% 56% 40%}25%{border-radius:44% 56% 54% 46%/38% 62% 38% 62%}50%{border-radius:52% 48% 38% 62%/54% 46% 54% 46%}75%{border-radius:38% 62% 48% 52%/46% 54% 46% 54%}}
+    @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+    @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.6)}}
   `;
   document.head.appendChild(s);
 })();
+const UTM_DATA=(()=>{try{const p=new URLSearchParams(window.location.search);const c=p.get("utm_campaign")||localStorage.getItem("bolt_utm_campaign")||"";if(p.get("utm_campaign"))localStorage.setItem("bolt_utm_campaign",c);if(p.get("utm_source"))localStorage.setItem("bolt_utm_source",p.get("utm_source")||"");if(p.get("utm_content"))localStorage.setItem("bolt_utm_content",p.get("utm_content")||"");return{campaign:c};}catch{return{campaign:""};}})();
+const UTM_CONFIGS={
+  growth_marketing:{heroLine1:"Your growth marketing expertise is worth",card:{title:"Growth Systems Diagnostic",profile:"11-year Growth Marketing Lead · Bengaluru",items:[{l:"Month 3 income",v:"₹2,20,000"},{l:"Hours/week",v:"8 hrs"},{l:"First client in",v:"2 weeks"},{l:"Earn mode",v:"Per-project"}]},t1stIdx:1},
+  finance:{heroLine1:"Your finance expertise is worth",card:{title:"CFO-as-a-Service for D2C Brands",profile:"12-year Finance professional · Bengaluru",items:[{l:"Month 3 income",v:"₹2,40,000"},{l:"Hours/week",v:"7 hrs"},{l:"First client in",v:"3 weeks"},{l:"Earn mode",v:"Retainer"}]},t1stIdx:0},
+  hr:{heroLine1:"Your HR leadership expertise is worth",card:{title:"Strategic HR Advisory for Startups",profile:"13-year HR Director · Mumbai",items:[{l:"Month 3 income",v:"₹1,80,000"},{l:"Hours/week",v:"6 hrs"},{l:"First client in",v:"3 weeks"},{l:"Earn mode",v:"Retainer"}]},t1stIdx:0},
+  supply_chain:{heroLine1:"Your supply chain expertise is worth",card:{title:"Supply Chain Advisory Retainer",profile:"14-year Supply Chain Director · Mumbai",items:[{l:"Month 3 income",v:"₹1,70,000"},{l:"Hours/week",v:"7 hrs"},{l:"First client in",v:"3 weeks"},{l:"Earn mode",v:"Retainer"}]},t1stIdx:0},
+  product:{heroLine1:"Your product expertise is worth",card:{title:"SaaS Product Advisory",profile:"12-year Product Director · Bengaluru",items:[{l:"Month 3 income",v:"₹2,00,000"},{l:"Hours/week",v:"8 hrs"},{l:"First client in",v:"2 weeks"},{l:"Earn mode",v:"Retainer"}]},t1stIdx:2},
+};
+const LIVE_COUNT=312+10+Math.floor(Math.random()*21);
+const inferNiche=e=>{const t=(e||"").toLowerCase();if(t.includes("marketing")||t.includes("growth")||t.includes("brand"))return"Digital Marketing";if(t.includes("finance")||t.includes("tax")||t.includes("ca ")||t.includes("invest"))return"Finance & Tax";if(t.includes("tech")||t.includes("engineer")||t.includes("dev")||t.includes("software"))return"Tech & Dev";if(t.includes("content")||t.includes("writ")||t.includes("copy"))return"Content Creation";if(t.includes("hr ")||t.includes("people")||t.includes("talent")||t.includes("recruit"))return"HR Advisory";if(t.includes("product")||t.includes("saas"))return"Product Management";if(t.includes("supply")||t.includes("logistic")||t.includes("procurement"))return"Supply Chain";if(t.includes("coach")||t.includes("mentor"))return"Coaching";if(t.includes("design")||t.includes("ux")||t.includes("ui"))return"Design";return"Consulting";};
+const computeRadarScores=a=>{const yrs=Math.min(20,(parseInt(a.experience||0)||0));const expScore=Math.min(20,(a.expertise?.length||0)/4+yrs/2);const incIdx=["Under ₹50,000","₹50k–₹1,00,000","₹1,00,000–₹2,00,000","₹2,00,000–₹3,50,000","₹3,50,000+"].indexOf(a.currentIncome||"");const potScore=Math.min(20,Math.max(4,(incIdx+1)*4));const hrIdx=["1–3 hrs","4–7 hrs","8–15 hrs","15+ hrs"].indexOf(a.hours||"");const timeScore=Math.min(20,(hrIdx+1)*5);const visScore=["active","occasional"].includes(a.visibility||"")?14:a.visibility==="minimal"?8:4;const netScore=a.network==="warm"?6:a.network==="linkedin"?3:0;const distScore=Math.min(20,visScore+netScore);const execScore=Math.min(20,Math.max(4,(a.pastFailure?.length||0)/8));return{expertise:expScore,potential:potScore,time:timeScore,distribution:distScore,execution:execScore};};
+const getScorePercentile=score=>{const bins=[{min:90,max:100,count:23},{min:75,max:89,count:89},{min:60,max:74,count:142},{min:40,max:59,count:71},{min:0,max:39,count:22}];const total=bins.reduce((s,b)=>s+b.count,0);let below=0;for(const b of bins){if(score>b.max)below+=b.count;else if(score>=b.min)below+=Math.round(b.count*(score-b.min)/(b.max-b.min+1));}return Math.min(99,Math.round(below/total*100));};
+function QuizRadar({answers,size=56}){
+  const scores=computeRadarScores(answers);
+  const anyFilled=Object.values(scores).some(s=>s>0);
+  if(!anyFilled)return null;
+  const dims=["expertise","potential","time","distribution","execution"];
+  const cx=size/2,cy=size/2,r=size*0.36,n=5;
+  const pt=(i,val,maxR)=>{const a=(i*2*Math.PI/n)-Math.PI/2;const pR=maxR*(val/20);return{x:cx+pR*Math.cos(a),y:cy+pR*Math.sin(a)};};
+  const sPts=dims.map((d,i)=>pt(i,scores[d]||0,r));
+  const pathD=sPts.map((p,i)=>`${i===0?"M":"L"} ${p.x} ${p.y}`).join(" ")+" Z";
+  const gridPts=dims.map((_,i)=>pt(i,20,r));
+  const gridPath=gridPts.map((p,i)=>`${i===0?"M":"L"} ${p.x} ${p.y}`).join(" ")+" Z";
+  const mid50=dims.map((_,i)=>pt(i,10,r));
+  const midPath=mid50.map((p,i)=>`${i===0?"M":"L"} ${p.x} ${p.y}`).join(" ")+" Z";
+  return(
+    <motion.div initial={{scale:0,opacity:0}} animate={{scale:1,opacity:1}} transition={{duration:0.4,ease:[0.34,1.56,0.64,1]}}>
+      <svg width={size} height={size} style={{overflow:"visible"}}>
+        <path d={gridPath} fill="none" stroke={C.border2} strokeWidth="0.8"/>
+        <path d={midPath} fill="none" stroke={C.border} strokeWidth="0.5"/>
+        <path d={pathD} fill={`${C.amber}28`} stroke={C.amber} strokeWidth="1.5"/>
+        {sPts.map((p,i)=><circle key={i} cx={p.x} cy={p.y} r="2" fill={C.amber}/>)}
+      </svg>
+    </motion.div>
+  );
+}
 const fadeUp={hidden:{opacity:0,y:40},show:{opacity:1,y:0}};
 const stagger={hidden:{},show:{transition:{staggerChildren:0.12}}};
 function Reveal({children,delay=0,style={}}){
@@ -1192,56 +1230,70 @@ function Reveal({children,delay=0,style={}}){
   );
 }
 function INHero({onStart}){
-  const proofItems=[
-    {l:"Month 3 income",v:"₹2,40,000"},
-    {l:"Hours/week",v:"7 hrs"},
-    {l:"First client in",v:"3 weeks"},
-    {l:"Earn mode",v:"Retainer"},
-  ];
+  const utmCfg=UTM_CONFIGS[UTM_DATA.campaign]||null;
+  const card=utmCfg?.card||{title:"CFO-as-a-Service for D2C Brands",profile:"12-year Finance professional · Bengaluru",items:[{l:"Month 3 income",v:"₹2,40,000"},{l:"Hours/week",v:"7 hrs"},{l:"First client in",v:"3 weeks"},{l:"Earn mode",v:"Retainer"}]};
+  const heroLine1=utmCfg?.heroLine1||"Your expertise is worth";
+  const rowDelays=[0.45,0.52,0.59,0.66];
   return(
     <section style={{minHeight:"100vh",background:CI.bg,display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:"80px 32px 60px",position:"relative",overflow:"hidden",textAlign:"center"}}>
       <motion.div
         style={{position:"absolute",width:640,height:640,background:`radial-gradient(ellipse,${CI.accentLight} 0%,transparent 70%)`,top:"50%",left:"50%",translateX:"-50%",translateY:"-50%",pointerEvents:"none"}}
-        animate={{borderRadius:["62% 38% 46% 54%/60% 44% 56% 40%","44% 56% 54% 46%/38% 62% 38% 62%","52% 48% 38% 62%/54% 46% 54% 46%","62% 38% 46% 54%/60% 44% 56% 40%"],scale:[1,1.06,0.97,1]}}
+        animate={{borderRadius:["62% 38% 46% 54%/60% 44% 56% 40%","44% 56% 54% 46%/38% 62% 38% 62%","62% 38% 46% 54%/60% 44% 56% 40%"],scale:[1,1.06,1]}}
         transition={{duration:20,repeat:Infinity,ease:"easeInOut"}}
         initial={{opacity:0}} whileInView={{opacity:0.65}} viewport={{once:true}}
       />
-      <motion.div style={{position:"relative",maxWidth:640,zIndex:1}} variants={stagger} initial="hidden" animate="show">
-        <motion.div variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}}>
-          <div style={{display:"inline-block",background:CI.accentLight,color:CI.accent,fontSize:11,fontFamily:FI.sans,fontWeight:500,letterSpacing:"0.18em",textTransform:"uppercase",padding:"6px 16px",borderRadius:40,marginBottom:40}}>For professionals with 8+ years of experience</div>
+      <div style={{position:"relative",maxWidth:640,zIndex:1}}>
+        <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,ease:[0.22,1,0.36,1]}}>
+          <div style={{display:"inline-block",background:CI.accentLight,color:CI.accent,fontSize:11,fontFamily:FI.sans,fontWeight:500,letterSpacing:"0.18em",textTransform:"uppercase",padding:"6px 16px",borderRadius:40,marginBottom:40}}>For Professionals with 10+ Years — By Invitation Only</div>
         </motion.div>
-        <motion.h1 variants={fadeUp} transition={{duration:0.9,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.serif,fontSize:"clamp(36px,7vw,62px)",fontWeight:400,color:CI.text,lineHeight:1.1,letterSpacing:"-0.02em",marginBottom:24}}>
-          Your expertise is worth<br/><em style={{fontStyle:"italic",color:CI.accent}}>₹2–8 lakh/month</em><br/>beyond your salary.
-        </motion.h1>
-        <motion.p variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.sans,fontSize:17,color:CI.muted,lineHeight:1.75,fontWeight:300,maxWidth:480,margin:"0 auto 36px"}}>The professionals who cracked this didn't have more time or better ideas. They had a map. Bolt builds yours in 3 minutes.</motion.p>
-        <motion.div variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}}
+        <div style={{marginBottom:24}}>
+          <motion.div initial={{opacity:0,y:32}} animate={{opacity:1,y:0}} transition={{duration:0.8,delay:0.1,ease:[0.22,1,0.36,1]}}>
+            <span style={{fontFamily:FI.serif,fontSize:"clamp(36px,7vw,62px)",fontWeight:400,color:CI.text,lineHeight:1.1,letterSpacing:"-0.02em",display:"block"}}>{heroLine1}</span>
+          </motion.div>
+          <div style={{overflow:"hidden",margin:"4px 0"}}>
+            <motion.div initial={{clipPath:"inset(0 100% 0 0)"}} animate={{clipPath:"inset(0 0% 0 0)"}} transition={{duration:0.9,delay:0.35,ease:[0.22,1,0.36,1]}}>
+              <em style={{fontFamily:FI.serif,fontSize:"clamp(36px,7vw,62px)",fontWeight:400,fontStyle:"italic",color:CI.accent,lineHeight:1.1,display:"block"}}>₹2–8 lakh/month</em>
+            </motion.div>
+          </div>
+          <motion.div initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{duration:0.7,delay:0.6,ease:[0.22,1,0.36,1]}}>
+            <span style={{fontFamily:FI.serif,fontSize:"clamp(36px,7vw,62px)",fontWeight:400,color:CI.text,lineHeight:1.1,letterSpacing:"-0.02em",display:"block"}}>beyond your salary.</span>
+          </motion.div>
+        </div>
+        <motion.p initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,delay:0.75,ease:[0.22,1,0.36,1]}} style={{fontFamily:FI.sans,fontSize:17,color:CI.muted,lineHeight:1.75,fontWeight:300,maxWidth:480,margin:"0 auto 36px"}}>The professionals who cracked this didn't have more time or better ideas. They had a map. Bolt builds yours in 3 minutes.</motion.p>
+        <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,delay:0.85,ease:[0.22,1,0.36,1]}}
           style={{background:CI.white,border:`1px solid ${CI.border}`,borderRadius:12,padding:"24px 28px",maxWidth:420,margin:"0 auto 36px",textAlign:"left",boxShadow:"0 4px 40px rgba(0,0,0,0.06)"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
             <span style={{fontFamily:FI.sans,fontSize:10,color:CI.dim,letterSpacing:"0.15em",textTransform:"uppercase"}}>Sample Blueprint</span>
             <span style={{fontFamily:FI.sans,fontSize:10,color:CI.accent,background:CI.accentLight,padding:"3px 10px",borderRadius:20,letterSpacing:"0.06em",fontWeight:500}}>Score 84 / 100</span>
           </div>
-          <div style={{fontFamily:FI.serif,fontSize:17,fontWeight:500,color:CI.text,marginBottom:3}}>CFO-as-a-Service for D2C Brands</div>
-          <div style={{fontFamily:FI.sans,fontSize:12,color:CI.dim,marginBottom:20}}>12-year Finance professional · Bengaluru</div>
+          <div style={{fontFamily:FI.serif,fontSize:17,fontWeight:500,color:CI.text,marginBottom:3}}>{card.title}</div>
+          <div style={{fontFamily:FI.sans,fontSize:12,color:CI.dim,marginBottom:20}}>{card.profile}</div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:"14px 20px"}}>
-            {proofItems.map(item=>(
-              <div key={item.l}>
+            {card.items.map((item,i)=>(
+              <motion.div key={item.l} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{duration:0.5,delay:rowDelays[i]||0.7,ease:[0.22,1,0.36,1]}}>
                 <div style={{fontFamily:FI.sans,fontSize:10,color:CI.dim,marginBottom:3,letterSpacing:"0.06em",textTransform:"uppercase"}}>{item.l}</div>
                 <div style={{fontFamily:FI.serif,fontSize:16,fontWeight:500,color:CI.text}}>{item.v}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </motion.div>
-        <motion.div variants={fadeUp} transition={{duration:0.8,ease:[0.22,1,0.36,1]}}>
+        <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.95,ease:[0.22,1,0.36,1]}}>
           <motion.button onClick={onStart}
-            style={{background:CI.text,color:CI.bg,border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",display:"block",margin:"0 auto"}}
-            whileHover={{background:CI.accent,scale:1.03}}
+            style={{background:`linear-gradient(90deg,${CI.accent},#e8a84a,${CI.accent})`,backgroundSize:"200% auto",animation:"shimmer 3s linear infinite",color:"#fff",border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",display:"block",margin:"0 auto"}}
+            whileHover={{scale:1.03}}
             whileTap={{scale:0.97}}
             transition={{duration:0.2}}>
-            Build my blueprint — free
+            Build my blueprint — free to start
           </motion.button>
-          <p style={{fontFamily:FI.sans,fontSize:12,color:CI.dim,marginTop:14,fontWeight:300,margin:"14px auto 0"}}>3 minutes · No signup · 12,400+ blueprints generated</p>
+          <div style={{fontFamily:FI.sans,fontSize:12,color:CI.dim,margin:"12px auto 0",maxWidth:380,lineHeight:1.6}}>
+            <span style={{fontWeight:500,color:CI.text}}>Step 1:</span> 7 questions — completely free &nbsp;·&nbsp; <span style={{fontWeight:500,color:CI.text}}>Step 2:</span> Unlock full 90-day blueprint — ₹499
+          </div>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,marginTop:14,background:CI.surface,border:`1px solid ${CI.border}`,borderRadius:40,padding:"7px 16px"}}>
+            <span style={{width:8,height:8,borderRadius:"50%",background:"#22c55e",display:"inline-block",animation:"pulseDot 1.8s ease-in-out infinite",flexShrink:0}}/>
+            <span style={{fontFamily:FI.sans,fontSize:12,color:CI.muted,letterSpacing:"0.02em"}}>{LIVE_COUNT} blueprints built this week</span>
+          </div>
         </motion.div>
-      </motion.div>
+      </div>
     </section>
   );
 }
@@ -1304,10 +1356,22 @@ function INWhatBoltDoes(){
     {n:"02",title:"Shows your real revenue math",body:"Honest projections built on your actual hours, your specific income gap, and comparable professionals at your level. Numbers you can plan around — not inflated promises."},
     {n:"03",title:"Hands you week one",body:"Your blueprint ends with word-for-word outreach scripts for your first three clients. Not 'start building your network' — the exact messages to send this week."},
   ];
+  const spotWords=["NICHE","NUMBERS","NOW"];
   return(
     <section style={{background:CI.bg,padding:"120px 32px",maxWidth:760,margin:"0 auto"}}>
       <Reveal>
-        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:72,textAlign:"center",letterSpacing:"-0.01em"}}>What Bolt actually does</h2>
+        <h2 style={{fontFamily:FI.serif,fontSize:"clamp(24px,4vw,38px)",fontWeight:400,color:CI.text,marginBottom:16,textAlign:"center",letterSpacing:"-0.01em"}}>What Bolt actually does</h2>
+        <div style={{display:"flex",justifyContent:"center",gap:16,marginBottom:56}}>
+          {spotWords.map((word,i)=>(
+            <motion.span key={word}
+              initial={{opacity:0.18,color:CI.border}}
+              whileInView={{opacity:1,color:CI.accent}}
+              viewport={{once:true,margin:"-80px"}}
+              transition={{duration:0.5,delay:i*0.2,ease:"easeOut"}}
+              style={{fontFamily:FI.sans,fontSize:12,fontWeight:700,letterSpacing:"0.22em"}}
+            >{word}</motion.span>
+          ))}
+        </div>
       </Reveal>
       <div style={{display:"flex",flexDirection:"column",gap:64}}>
         {items.map((item,i)=>(
@@ -1325,22 +1389,46 @@ function INWhatBoltDoes(){
     </section>
   );
 }
+function CountUpStat({raw,format,label,delay=0}){
+  const ref=useRef(null);
+  const [val,setVal]=useState(0);
+  const started=useRef(false);
+  useEffect(()=>{
+    const el=ref.current;if(!el)return;
+    const obs=new IntersectionObserver(([entry])=>{
+      if(entry.isIntersecting&&!started.current){
+        started.current=true;
+        const t0=performance.now(),dur=1800;
+        const tick=now=>{
+          const prog=Math.min(1,(now-t0)/dur);
+          const ease=1-Math.pow(1-prog,3);
+          setVal(raw*ease);
+          if(prog<1)requestAnimationFrame(tick);else setVal(raw);
+        };
+        requestAnimationFrame(tick);
+      }
+    },{threshold:0.3});
+    obs.observe(el);
+    return()=>obs.disconnect();
+  },[raw]);
+  return(
+    <motion.div ref={ref} initial={{opacity:0,y:24}} whileInView={{opacity:1,y:0}} viewport={{once:true,margin:"-60px"}} transition={{duration:0.7,delay,ease:[0.22,1,0.36,1]}}>
+      <div style={{fontFamily:FI.serif,fontSize:"clamp(32px,5vw,52px)",fontWeight:500,color:CI.text,letterSpacing:"-0.02em",lineHeight:1,marginBottom:12}}>{format(val)}</div>
+      <div style={{fontFamily:FI.sans,fontSize:12,color:CI.muted,fontWeight:400,letterSpacing:"0.06em",textTransform:"uppercase"}}>{label}</div>
+    </motion.div>
+  );
+}
 function INSocialProof(){
   const stats=[
-    {value:"12,400+",label:"blueprints generated"},
-    {value:"₹1.4L+",label:"avg. Month 3 · senior profiles"},
-    {value:"3 min",label:"to your full roadmap"},
+    {raw:12400,format:n=>`${Math.round(n).toLocaleString("en-IN")}+`,label:"blueprints generated"},
+    {raw:1.4,format:n=>`₹${n.toFixed(1)}L+`,label:"avg. Month 3 · senior profiles"},
+    {raw:3,format:n=>`${Math.ceil(n)} min`,label:"to your full roadmap"},
   ];
   return(
     <section style={{background:CI.surface,padding:"100px 32px"}}>
       <div style={{maxWidth:720,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:32,textAlign:"center"}}>
         {stats.map((s,i)=>(
-          <Reveal key={s.value} delay={i*0.1}>
-            <div>
-              <div style={{fontFamily:FI.serif,fontSize:"clamp(32px,5vw,52px)",fontWeight:500,color:CI.text,letterSpacing:"-0.02em",lineHeight:1,marginBottom:12}}>{s.value}</div>
-              <div style={{fontFamily:FI.sans,fontSize:12,color:CI.muted,fontWeight:400,letterSpacing:"0.06em",textTransform:"uppercase"}}>{s.label}</div>
-            </div>
-          </Reveal>
+          <CountUpStat key={s.label} raw={s.raw} format={s.format} label={s.label} delay={i*0.1}/>
         ))}
       </div>
     </section>
@@ -1349,9 +1437,9 @@ function INSocialProof(){
 
 function INTestimonials(){
   const quotes=[
-    {q:"I spent 14 years in supply chain and assumed my only options were consulting or a senior job switch. Bolt told me to productise my expertise into a retainer advisory service. By month three I had two clients at ₹85,000 each. I now earn more on the side than many people do full-time.",name:"Vikram S.",loc:"Mumbai · Supply Chain Director, 14 yrs exp"},
-    {q:"I kept waiting until I felt 'established enough'. Bolt's blueprint showed me that my 11 years in growth marketing was already the product. Week one action, first paid client in week four. ₹1.8 lakh in month three.",name:"Priya R.",loc:"Bengaluru · Growth Marketing Lead, 11 yrs exp"},
-    {q:"I thought side income meant weekends on Upwork. Bolt showed me a completely different model — premium advisory to founders in my domain. The specificity of the roadmap meant I never had to guess what to do next.",name:"Rohit K.",loc:"Delhi · Product Director, 12 yrs exp"},
+    {verdict:"From stuck to ₹1.7L/month in 90 days.",q:"I spent 14 years in supply chain and assumed my only options were consulting or a senior job switch. Bolt told me to productise my expertise into a retainer advisory service. By month three I had two clients at ₹85,000 each. I now earn more on the side than many people do full-time.",name:"Vikram S.",loc:"Mumbai · Supply Chain Director, 14 yrs exp",niche:"Supply Chain",outcome:"₹1,70,000/month"},
+    {verdict:"First paid client in week four.",q:"I kept waiting until I felt 'established enough'. Bolt's blueprint showed me that my 11 years in growth marketing was already the product. Week one action, first paid client in week four. ₹1.8 lakh in month three.",name:"Priya R.",loc:"Bengaluru · Growth Marketing Lead, 11 yrs exp",niche:"Growth Marketing",outcome:"₹1,80,000/month"},
+    {verdict:"Premium advisory — not another side hustle.",q:"I thought side income meant weekends on Upwork. Bolt showed me a completely different model — premium advisory to founders in my domain. The specificity of the roadmap meant I never had to guess what to do next.",name:"Rohit K.",loc:"Delhi · Product Director, 12 yrs exp",niche:"Product Advisory",outcome:"₹2,00,000/month"},
   ];
   return(
     <section style={{background:CI.bg,padding:"120px 32px"}}>
@@ -1365,21 +1453,33 @@ function INTestimonials(){
         </Reveal>
         <div style={{display:"flex",flexDirection:"column",gap:56}}>
           {quotes.map((t,i)=>(
-            <Reveal key={t.name} delay={i*0.1}>
+            <motion.div key={t.name}
+              initial={{opacity:0,x:-40}}
+              whileInView={{opacity:1,x:0}}
+              viewport={{once:true,margin:"-60px"}}
+              transition={{duration:0.7,delay:i*0.15,ease:[0.22,1,0.36,1]}}
+            >
+              <div style={{marginBottom:10}}>
+                <span style={{fontFamily:FI.sans,fontSize:13,fontWeight:600,color:CI.accent,fontStyle:"italic"}}>{t.verdict}</span>
+              </div>
               <div style={{display:"grid",gridTemplateColumns:"40px 1fr",gap:24,alignItems:"start"}}>
                 <div style={{width:40,height:40,borderRadius:"50%",background:CI.accentLight,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:FI.serif,fontSize:18,color:CI.accent,marginTop:4}}>"</div>
                 <div>
                   <p style={{fontFamily:FI.serif,fontSize:"clamp(17px,2.5vw,22px)",fontWeight:400,color:CI.text,lineHeight:1.6,margin:"0 0 20px",letterSpacing:"-0.01em"}}>{t.q}</p>
-                  <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    <div style={{width:1,height:24,background:CI.accent}}/>
+                  <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                    <div style={{width:1,height:24,background:CI.accent,flexShrink:0}}/>
                     <div>
                       <div style={{fontFamily:FI.sans,fontSize:13,fontWeight:500,color:CI.text}}>{t.name}</div>
                       <div style={{fontFamily:FI.sans,fontSize:12,color:CI.dim,marginTop:2}}>{t.loc}</div>
                     </div>
+                    <div style={{marginLeft:"auto",display:"flex",gap:8,flexWrap:"wrap"}}>
+                      <span style={{fontFamily:FI.sans,fontSize:11,background:CI.accentLight,color:CI.accent,padding:"3px 10px",borderRadius:20,fontWeight:500}}>{t.niche}</span>
+                      <span style={{fontFamily:FI.sans,fontSize:11,background:"#f0fdf4",color:"#16a34a",padding:"3px 10px",borderRadius:20,fontWeight:500}}>{t.outcome}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </Reveal>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -1412,10 +1512,15 @@ function INBlueprintPreview(){
             </div>
             <div style={{padding:"8px 0"}}>
               {items.map((item,i)=>(
-                <div key={item.label} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",padding:"16px 28px",borderBottom:i<items.length-1?`1px solid ${CI.border}`:"none",gap:24}}>
+                <motion.div key={item.label}
+                  initial={{opacity:0,y:10}}
+                  whileInView={{opacity:1,y:0}}
+                  viewport={{once:true,margin:"-20px"}}
+                  transition={{duration:0.45,delay:i*0.08,ease:[0.22,1,0.36,1]}}
+                  style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",padding:"16px 28px",borderBottom:i<items.length-1?`1px solid ${CI.border}`:"none",gap:24}}>
                   <span style={{fontFamily:FI.sans,fontSize:13,color:CI.muted,fontWeight:400,flexShrink:0}}>{item.label}</span>
                   <span style={{fontFamily:FI.serif,fontSize:16,color:CI.text,fontWeight:400,textAlign:"right"}}>{item.value}</span>
-                </div>
+                </motion.div>
               ))}
             </div>
             <div style={{background:CI.accentLight,padding:"16px 28px",borderTop:`1px solid ${CI.border}`}}>
@@ -1435,24 +1540,26 @@ function INFinalCTA({onStart}){
           You've spent 10 years<br/>building this expertise.<br/><em style={{fontStyle:"italic",color:CI.accent}}>Time to charge for it.</em>
         </h2>
       </Reveal>
-      <Reveal delay={0.2}>
-        <p style={{fontFamily:FI.sans,fontSize:16,color:"#a89a8c",fontWeight:300,marginBottom:12,lineHeight:1.7,maxWidth:480,margin:"0 auto 12px"}}>Free to start. Your blueprint is yours to keep. Unlock the full 90-day action plan when you're ready — no pressure.</p>
+      <Reveal delay={0.18}>
+        <p style={{fontFamily:FI.sans,fontSize:15,color:"#b8aa9e",fontWeight:300,lineHeight:1.7,maxWidth:480,margin:"0 auto 20px"}}>Your full blueprint — 90-day plan, outreach scripts, income projections — unlocks for ₹499. Less than one hour of what your time is worth.</p>
       </Reveal>
       <Reveal delay={0.28}>
-        <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:40,padding:"8px 18px",marginBottom:44}}>
-          <span style={{fontSize:14}}>⚡</span>
-          <span style={{fontFamily:FI.sans,fontSize:12,color:"#c8beb5",letterSpacing:"0.04em"}}>312 blueprints generated this week</span>
+        <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:40,padding:"8px 18px",marginBottom:40}}>
+          <span style={{width:8,height:8,borderRadius:"50%",background:"#22c55e",display:"inline-block",animation:"pulseDot 1.8s ease-in-out infinite",flexShrink:0}}/>
+          <span style={{fontFamily:FI.sans,fontSize:12,color:"#c8beb5",letterSpacing:"0.04em"}}>{LIVE_COUNT} blueprints built this week</span>
         </div>
       </Reveal>
       <Reveal delay={0.38}>
         <motion.button onClick={onStart}
-          style={{background:CI.accent,color:"#fff",border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",display:"block",margin:"0 auto"}}
-          whileHover={{opacity:0.88,scale:1.04}}
+          style={{background:`linear-gradient(90deg,${CI.accent},#e8a84a,${CI.accent})`,backgroundSize:"200% auto",animation:"shimmer 3s linear infinite",color:"#fff",border:"none",borderRadius:4,padding:"20px 52px",fontFamily:FI.sans,fontSize:15,fontWeight:500,letterSpacing:"0.04em",cursor:"pointer",display:"block",margin:"0 auto"}}
+          whileHover={{scale:1.04}}
           whileTap={{scale:0.96}}
           transition={{duration:0.2}}>
-          Build my blueprint — free
+          Build my blueprint — free to start
         </motion.button>
-        <p style={{fontFamily:FI.sans,fontSize:12,color:"#6b5f52",marginTop:16,fontWeight:300}}>3 minutes · No signup required</p>
+        <div style={{fontFamily:FI.sans,fontSize:12,color:"#6b5f52",marginTop:14}}>
+          <span style={{fontWeight:500,color:"#9a8a7a"}}>Step 1:</span> 7 questions — free &nbsp;·&nbsp; <span style={{fontWeight:500,color:"#9a8a7a"}}>Step 2:</span> Unlock 90-day blueprint — ₹499
+        </div>
       </Reveal>
     </section>
   );
@@ -1471,9 +1578,9 @@ function LandingIN({onStart}){
           initial={{opacity:0,x:-12}} animate={{opacity:1,x:0}} transition={{duration:0.6,delay:0.4}}
           style={{fontFamily:FI.serif,fontSize:20,fontWeight:500,color:CI.text,letterSpacing:"-0.02em"}}>Bolt</motion.span>
         <motion.button onClick={onStart}
-          initial={{opacity:0,x:12}} animate={{opacity:1,x:0}} transition={{duration:0.6,delay:0.5}}
-          style={{background:"transparent",border:`1px solid ${CI.border}`,borderRadius:3,padding:"8px 20px",fontFamily:FI.sans,fontSize:13,color:CI.muted,cursor:"pointer"}}
-          whileHover={{borderColor:CI.text,color:CI.text,scale:1.02}}
+          initial={{opacity:0,x:12}} animate={{opacity:1,x:0}}
+          style={{background:CI.accent,border:"none",borderRadius:3,padding:"8px 20px",fontFamily:FI.sans,fontSize:13,color:"#fff",cursor:"pointer",fontWeight:500}}
+          whileHover={{opacity:0.88,scale:1.02}}
           whileTap={{scale:0.97}}
           transition={{duration:0.2}}>
           Get started
@@ -1513,6 +1620,8 @@ const [waSent,setWaSent]=useState(false);
 const [showAdmin,setShowAdmin]=useState(false);
 const [selectedNiche,setSelectedNiche]=useState(null);
 const [retakeCount,setRetakeCount]=useState(0);
+const [showMidpoint,setShowMidpoint]=useState(false);
+const [quizReveal,setQuizReveal]=useState(false);
 const [abCell]=useState(()=>getABCell());
 const [isIN]=useState(()=>window.location.pathname==="/in");
 const [blueprint,setBlueprint]=useState(null);
@@ -1547,18 +1656,25 @@ Analytics.track("quiz_started",{mobile});
 go(V.QUIZ);
 };
 
-const handleQAnswer=val=>{
-Analytics.track("quiz_question_answered",{question_id:q.id,answer:val});
-const up={...answers,[q.id]:val};
-setAnswers(up); setTextVal(""); setMultiSel([]);
-if(qIdx<QUESTIONS.length-1){ setQIdx(qIdx+1); }
-else{
-  Analytics.track("quiz_completed",{mobile});
+const launchGenerate=(up)=>{
   go(V.GENERATING);
   fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({answers:up})})
     .then(r=>r.ok?r.json():Promise.reject(r.status))
     .then(generated=>{ setBlueprint(generated); go(V.GATE); })
-    .catch(()=>{ go(V.GATE); }); // falls back to DEMO on error
+    .catch(()=>{ go(V.GATE); });
+};
+const handleQAnswer=val=>{
+Analytics.track("quiz_question_answered",{question_id:q.id,answer:val});
+const up={...answers,[q.id]:val};
+setAnswers(up); setTextVal(""); setMultiSel([]);
+if(qIdx===6){
+  setShowMidpoint(true);
+} else if(qIdx<QUESTIONS.length-1){
+  setQIdx(qIdx+1);
+} else {
+  Analytics.track("quiz_completed",{mobile});
+  setQuizReveal(true);
+  setTimeout(()=>{ setQuizReveal(false); launchGenerate(up); },3000);
 }
 };
 
@@ -1566,7 +1682,7 @@ const Phone=({children,noDots})=>(
 <div style={{ minHeight:"100vh",background:C.bg,display:"flex",justifyContent:"center" }}>
 
 
-  <style>{`*{box-sizing:border-box;-webkit-tap-highlight-color:transparent} @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}} input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none} ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:${C.border2}}`}</style>
+  <style>{`*{box-sizing:border-box;-webkit-tap-highlight-color:transparent} @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}} @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}} @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.6)}} input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none} ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:${C.border2}}`}</style>
   <div style={{ width:"100%",maxWidth:390,minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column" }}>
     {!noDots&&<Dots view={view}/>}
     <div ref={topRef} style={{ flex:1,overflowY:"auto" }}>{children}</div>
@@ -1597,15 +1713,15 @@ if(isIN&&view===V.LANDING) return <LandingIN onStart={()=>{window.history.pushSt
 // - LANDING -
 if(view===V.LANDING) return (
 <div style={{ minHeight:"100vh",background:C.bg,display:"flex",justifyContent:"center" }}>
-  <style>{`*{box-sizing:border-box} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}`}</style>
+  <style>{`*{box-sizing:border-box} @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}} @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}} @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.6)}}`}</style>
   <div style={{ width:"100%",maxWidth:390,minHeight:"100vh",background:C.bg,paddingBottom:120,position:"relative" }}>
 
     {/* Sticky CTA bar */}
     <div style={{ position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:390,background:`linear-gradient(to top,${C.bg} 65%,transparent)`,padding:"20px 22px 28px",zIndex:100 }}>
-      <Btn onClick={()=>{Analytics.track("cta_clicked",{location:"sticky_bar"});go(V.MOBILE);}} style={{boxShadow:"0 8px 40px rgba(245,166,35,0.35)",fontSize:16,padding:"18px"}}>
-        Build My Blueprint — ₹{abConfig.gatePrice} →
+      <Btn onClick={()=>{Analytics.track("cta_clicked",{location:"sticky_bar"});go(V.MOBILE);}} style={{boxShadow:"0 8px 40px rgba(245,166,35,0.35)",fontSize:16,padding:"18px",background:`linear-gradient(90deg,${C.amber},#e8a84a,${C.amber})`,backgroundSize:"200% auto",animation:"shimmer 3s linear infinite"}}>
+        Build my blueprint — free to start
       </Btn>
-      <div style={{textAlign:"center",marginTop:8,fontSize:12,color:C.dim,fontFamily:F.sans,letterSpacing:"0.03em"}}>5 min · One-time · 2 free retakes</div>
+      <div style={{textAlign:"center",marginTop:8,fontSize:11,color:C.dim,fontFamily:F.sans}}>Step 1: 7 questions free · Step 2: Unlock 90-day blueprint — ₹{abConfig.gatePrice}</div>
     </div>
 
     <div style={{ padding:"28px 22px 0" }}>
@@ -1622,8 +1738,8 @@ if(view===V.LANDING) return (
       {/* Hero */}
       <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,ease:[0.22,1,0.36,1]}} style={{marginBottom:36}}>
         <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"#0a0900",border:`1px solid ${C.amber}33`,borderRadius:99,padding:"5px 14px",marginBottom:22}}>
-          <span style={{width:6,height:6,borderRadius:"50%",background:C.green,display:"inline-block"}}/>
-          <span style={{fontFamily:F.sans,fontSize:11,color:C.amber,letterSpacing:"0.08em"}}>12,400+ blueprints built</span>
+          <span style={{width:7,height:7,borderRadius:"50%",background:C.green,display:"inline-block",animation:"pulseDot 1.8s ease-in-out infinite",flexShrink:0}}/>
+          <span style={{fontFamily:F.sans,fontSize:11,color:C.amber,letterSpacing:"0.08em"}}>🟢 {LIVE_COUNT} blueprints built this week</span>
         </div>
         <h1 style={{fontFamily:F.serif,fontSize:38,fontWeight:400,color:C.text,lineHeight:1.15,margin:"0 0 20px",fontStyle:"italic"}}>
           {abConfig.hookVariant==="pain"
@@ -1826,27 +1942,102 @@ Rebuild My Blueprint — ₹399 →
 </Phone>
 );
 
+// - QUIZ REVEAL (Q14 full-screen radar) -
+if(view===V.QUIZ&&quizReveal){
+  const rScores=computeRadarScores(answers);
+  const overallPct=Math.round(Object.values(rScores).reduce((s,v)=>s+v,0)/5/20*100);
+  const dims=[["expertise","Expertise"],["potential","Potential"],["time","Time"],["distribution","Distribution"],["execution","Execution"]];
+  return(
+    <Phone noDots>
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100vh",padding:"0 28px",textAlign:"center"}}>
+      <motion.div initial={{scale:0.7,opacity:0}} animate={{scale:1,opacity:1}} transition={{duration:0.7,ease:[0.34,1.56,0.64,1]}}>
+        <QuizRadar answers={answers} size={140}/>
+      </motion.div>
+      <motion.div initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.35}} style={{width:"100%"}}>
+        <div style={{fontFamily:F.serif,fontSize:22,color:C.text,fontStyle:"italic",marginTop:20,marginBottom:6}}>Your profile is complete</div>
+        <div style={{fontFamily:F.sans,fontSize:12,color:C.dim,marginBottom:24}}>Readiness score: <span style={{color:C.amber,fontWeight:700}}>{overallPct}/100</span></div>
+        <div style={{width:"100%",maxWidth:260,margin:"0 auto",display:"flex",flexDirection:"column",gap:10}}>
+          {dims.map(([key,label],di)=>(
+            <div key={key} style={{display:"flex",alignItems:"center",gap:10}}>
+              <div style={{fontFamily:F.sans,fontSize:10,color:C.dim,width:76,textAlign:"right",letterSpacing:"0.04em"}}>{label}</div>
+              <div style={{flex:1,height:4,background:C.border,borderRadius:99,overflow:"hidden"}}>
+                <motion.div initial={{width:0}} animate={{width:`${(rScores[key]||0)/20*100}%`}} transition={{duration:0.8,delay:0.5+di*0.08,ease:"easeOut"}} style={{height:"100%",background:`linear-gradient(90deg,${C.amber},#e8410a)`,borderRadius:99}}/>
+              </div>
+              <div style={{fontFamily:F.sans,fontSize:10,color:C.amber,width:24,textAlign:"right"}}>{Math.round((rScores[key]||0)/20*100)}</div>
+            </div>
+          ))}
+        </div>
+        <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:1.2,duration:0.6}} style={{fontFamily:F.sans,fontSize:13,color:C.dim,marginTop:28,animation:"float 2s ease infinite"}}>Building your blueprint...</motion.div>
+      </motion.div>
+    </div>
+    </Phone>
+  );
+}
+
+// - QUIZ MIDPOINT (after Q7) -
+if(view===V.QUIZ&&showMidpoint){
+  const nicheGuess=inferNiche(answers.expertise||"");
+  const incIdx=["Under ₹50,000","₹50k–₹1,00,000","₹1,00,000–₹2,00,000","₹2,00,000–₹3,50,000","₹3,50,000+"].indexOf(answers.currentIncome||"");
+  const month3Est=incIdx>=4?"₹4,00,000–₹6,00,000":incIdx>=3?"₹2,80,000–₹4,20,000":incIdx>=2?"₹1,60,000–₹2,80,000":"₹1,20,000–₹2,00,000";
+  return(
+    <Phone noDots>
+    <div style={{display:"flex",flexDirection:"column",justifyContent:"center",minHeight:"100vh",padding:"0 28px"}}>
+      <motion.div initial={{opacity:0,y:32}} animate={{opacity:1,y:0}} transition={{duration:0.6,ease:[0.22,1,0.36,1]}}>
+        <div style={{display:"flex",justifyContent:"center",marginBottom:20}}>
+          <QuizRadar answers={answers} size={80}/>
+        </div>
+        <div style={{fontFamily:F.sans,fontSize:11,color:C.amber,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8,textAlign:"center"}}>Based on what you've shared so far</div>
+        <div style={{fontFamily:F.serif,fontSize:18,color:C.text,fontStyle:"italic",marginBottom:24,textAlign:"center",lineHeight:1.35}}>Your profile is taking shape</div>
+        <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:32}}>
+          {[["Your expertise area",answers.expertise||"Not specified"],["Your potential niche",nicheGuess],["Estimated Month 3 income",month3Est]].map(([label,val])=>(
+            <div key={label} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px"}}>
+              <div style={{fontFamily:F.sans,fontSize:10,color:C.dim,letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:5}}>{label}</div>
+              <div style={{fontFamily:F.serif,fontSize:15,color:C.text,fontStyle:"italic"}}>{val}</div>
+            </div>
+          ))}
+        </div>
+        <Btn onClick={()=>{setShowMidpoint(false);setQIdx(7);}}>Continue building your blueprint →</Btn>
+      </motion.div>
+    </div>
+    </Phone>
+  );
+}
+
 // - QUIZ -
-if(view===V.QUIZ) return (
-<Phone noDots>
-<Pad>
-<div style={{padding:"20px 0 22px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-<div style={{fontSize:14,fontWeight:800,color:C.amber,fontFamily:F.sans}}>⚡ bolt</div>
-<div style={{fontSize:12,color:C.dimmer,fontFamily:F.sans}}>{qIdx+1} / {QUESTIONS.length}</div>
-</div>
-<div style={{height:3,background:C.border,borderRadius:99,marginBottom:32}}>
-<div style={{height:"100%",borderRadius:99,background:`linear-gradient(90deg,${C.amber},#e8410a)`,width:`${((qIdx+1)/QUESTIONS.length)*100}%`,transition:"width 0.5s cubic-bezier(0.34,1.56,0.64,1)"}}/>
-</div>
-<div key={qIdx} style={{animation:"fadeUp 0.3s ease"}}>
-<h2 style={{fontFamily:F.serif,fontSize:"clamp(19px,5vw,26px)",fontWeight:400,color:C.text,lineHeight:1.35,margin:"0 0 8px",fontStyle:"italic"}}>{q.q}</h2>
-{q.sub&&<p style={{fontFamily:F.sans,fontSize:13,color:C.dim,margin:"0 0 26px"}}>{q.sub}</p>}
-{renderQInput()}
-</div>
-{qIdx>0&&<OutlineBtn onClick={()=>{setQIdx(qIdx-1);setTextVal("");setMultiSel([]);}} style={{marginTop:20}}>← Back</OutlineBtn>}
-<div style={{height:40}}/>
-</Pad>
-</Phone>
-);
+if(view===V.QUIZ){
+  const timeRemaining=qIdx>=12?"Almost done":qIdx>=9?"~1 min remaining":`~${Math.max(1,Math.ceil((QUESTIONS.length-qIdx-1)*13/60))} min remaining`;
+  return(
+    <Phone noDots>
+    <Pad>
+    <div style={{padding:"20px 0 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div style={{fontSize:14,fontWeight:800,color:C.amber,fontFamily:F.sans}}>⚡ bolt</div>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <QuizRadar answers={answers} size={44}/>
+        <div style={{fontSize:12,color:C.dimmer,fontFamily:F.sans}}>{qIdx+1} / {QUESTIONS.length}</div>
+      </div>
+    </div>
+    <div style={{height:3,background:C.border,borderRadius:99,marginBottom:8}}>
+      <motion.div style={{height:"100%",borderRadius:99,background:`linear-gradient(90deg,${C.amber},#e8410a)`,originX:0}} animate={{scaleX:(qIdx+1)/QUESTIONS.length}} transition={{duration:0.5,ease:[0.34,1.56,0.64,1]}}/>
+    </div>
+    <div style={{fontFamily:F.sans,fontSize:11,color:C.dimmer,marginBottom:24,letterSpacing:"0.03em"}}>{qIdx+1} / {QUESTIONS.length} · {timeRemaining}</div>
+    <AnimatePresence mode="wait">
+      <motion.div key={qIdx}
+        initial={{opacity:0,x:40}}
+        animate={{opacity:1,x:0}}
+        exit={{opacity:0,x:-40}}
+        transition={{duration:0.3,ease:[0.34,1.56,0.64,1]}}
+      >
+        <h2 style={{fontFamily:F.serif,fontSize:"clamp(19px,5vw,26px)",fontWeight:400,color:C.text,lineHeight:1.35,margin:"0 0 8px",fontStyle:"italic"}}>{q.q}</h2>
+        {q.sub&&<p style={{fontFamily:F.sans,fontSize:13,color:C.dim,margin:"0 0 26px"}}>{q.sub}</p>}
+        {renderQInput()}
+      </motion.div>
+    </AnimatePresence>
+    {qIdx>0&&<OutlineBtn onClick={()=>{setQIdx(qIdx-1);setTextVal("");setMultiSel([]);}} style={{marginTop:20}}>← Back</OutlineBtn>}
+    <div style={{height:40}}/>
+    </Pad>
+    </Phone>
+  );
+}
 
 // - GENERATING -
 if(view===V.GENERATING) return (
@@ -1867,33 +2058,41 @@ if(view===V.GENERATING) return (
 if(view===V.GATE) return (
 <Phone noDots>
 <Pad>
-<div style={{padding:"24px 0 0",display:"flex",justifyContent:"space-between",marginBottom:32}}>
+<div style={{padding:"24px 0 0",display:"flex",justifyContent:"space-between",marginBottom:24}}>
 <div style={{fontSize:16,fontWeight:800,color:C.amber,fontFamily:F.sans}}>⚡ bolt</div>
 <div style={{fontSize:10,color:C.dimmer,fontFamily:F.sans}}>Blueprint #{bp.blueprintNumber}</div>
 </div>
-<div style={{textAlign:"center",marginBottom:28}}>
+<div style={{textAlign:"center",marginBottom:16}}>
 <ScoreArc score={bp.score} size={140}/>
 <div style={{fontSize:11,color:C.green,letterSpacing:3,textTransform:"uppercase",marginTop:12,fontFamily:F.sans}}>{bp.scoreLabel}</div>
 </div>
-<div style={{background:"#0c0a00",border:`1px solid ${C.amber}22`,borderRadius:14,padding:"18px 16px",marginBottom:28}}>
+<div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 16px",marginBottom:20,textAlign:"center"}}>
+  <span style={{fontFamily:F.sans,fontSize:13,color:C.muted}}>You scored higher than <span style={{color:C.amber,fontWeight:700}}>{getScorePercentile(bp.score)}%</span> of professionals who took this</span>
+</div>
+<div style={{background:"#0c0a00",border:`1px solid ${C.amber}22`,borderRadius:14,padding:"18px 16px",marginBottom:20}}>
 <Label>Your positioning</Label>
 <p style={{fontFamily:F.serif,fontSize:15,color:"#ddd",lineHeight:1.65,margin:0,fontStyle:"italic"}}>"{bp.positioning}"</p>
 </div>
-<div style={{marginBottom:32}}>
+<div style={{marginBottom:28}}>
 <Label>Your 3 ideas</Label>
-{bp.ideas.map((idea,i)=>(
+<div style={{background:C.surface,border:`1px solid ${C.amber}44`,borderRadius:10,padding:"14px 16px",marginBottom:8,position:"relative"}}>
+  <div style={{position:"absolute",top:-9,left:14,background:C.amber,color:C.bg,fontSize:9,fontWeight:700,letterSpacing:1.5,padding:"2px 10px",borderRadius:99,fontFamily:F.sans}}>BEST MATCH</div>
+  <div style={{fontSize:13,fontWeight:600,color:C.text,marginBottom:2,fontFamily:F.sans}}>{bp.ideas[0].title}</div>
+  <div style={{fontSize:12,color:C.green,fontFamily:F.sans}}>{bp.ideas[0].monthly}/month</div>
+</div>
+{bp.ideas.slice(1).map((idea,i)=>(
 <div key={i} style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px",filter:"blur(5px)",userSelect:"none",pointerEvents:"none",marginBottom:8}}>
 <div style={{fontSize:14,fontWeight:600,color:C.text,marginBottom:2,fontFamily:F.sans}}>{idea.title}</div>
 <div style={{fontSize:12,color:C.dim,fontFamily:F.sans}}>{idea.monthly}/month</div>
 </div>
 ))}
-<div style={{textAlign:"center",marginTop:10}}><div style={{fontSize:11,color:C.dimmer,fontStyle:"italic",fontFamily:F.sans}}>Unlock to see your ideas →</div></div>
+<div style={{textAlign:"center",marginTop:8}}><div style={{fontSize:11,color:C.dimmer,fontStyle:"italic",fontFamily:F.sans}}>2 more ideas unlock below →</div></div>
 </div>
-<Btn onClick={()=>{Analytics.track("gate_converted",{mobile,amount:abConfig.gatePrice,ab_cell:abCell});UserState.incrementRetake(mobile);go(V.WELCOME);}} style={{background:`linear-gradient(135deg,${C.amber},#e8410a)`,boxShadow:"0 8px 28px rgba(245,166,35,0.25)",fontSize:16,marginBottom:10}}>
-Unlock My Blueprint — ₹{abConfig.gatePrice}
+<Btn onClick={()=>{Analytics.track("gate_converted",{mobile,amount:abConfig.gatePrice,ab_cell:abCell});UserState.incrementRetake(mobile);go(V.WELCOME);}} style={{background:`linear-gradient(90deg,${C.amber},#e8a84a,${C.amber})`,backgroundSize:"200% auto",animation:"shimmer 3s linear infinite",boxShadow:"0 8px 28px rgba(245,166,35,0.25)",fontSize:15,marginBottom:10}}>
+Unlock My {inferNiche(answers.expertise||"")} Blueprint — ₹{abConfig.gatePrice}
 </Btn>
 <div style={{textAlign:"center",fontSize:11,color:C.dimmer,fontFamily:F.sans,marginBottom:14}}>One-time · 2 free retakes included</div>
-<OutlineBtn onClick={()=>{setBlueprint(null);setQIdx(0);setAnswers({});setTextVal("");setMultiSel([]);go(V.QUIZ);}}>← Redo Quiz</OutlineBtn>
+<OutlineBtn onClick={()=>{setBlueprint(null);setQIdx(0);setAnswers({});setTextVal("");setMultiSel([]);setShowMidpoint(false);go(V.QUIZ);}}>← Redo Quiz</OutlineBtn>
 <div style={{height:40}}/>
 </Pad>
 </Phone>
