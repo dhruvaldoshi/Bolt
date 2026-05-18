@@ -1228,20 +1228,27 @@ if(count>=2) go(V.RETAKE_GATE); else go(V.OTP);
 };
 
 const handleOtp=()=>{
-if(otpInput.replace(/\D/g,””)!==“1234”){ setOtpError(“Incorrect OTP. Please try again.”); return; }
-Analytics.track(“otp_verified”,{mobile});
+if(otpInput.replace(/\D/g,"")!=="1234"){ setOtpError("Incorrect OTP. Please try again."); return; }
+Analytics.track("otp_verified",{mobile});
 const existingUser=UserState.get(mobile);
 if(!existingUser){ UserState.createUser(mobile,abCell); }
 const saved=UserState.get(mobile);
-if(saved?.last_view&&RESUMABLE.includes(saved.last_view)&&saved?.last_blueprint){
-setBlueprint(saved.last_blueprint);
+if(saved?.blueprints?.length>0){
+setRetakeCount(saved.retake_count||0);
+go(V.DASHBOARD);
+return;
+}
+if(saved?.last_view&&RESUMABLE.includes(saved.last_view)){
+const lastBp=saved.blueprints?.[saved.blueprints.length-1]||null;
+if(lastBp){ setBlueprint(lastBp); }
 if(saved.quiz_answers)setAnswers(saved.quiz_answers);
 go(saved.last_view);
-} else {
-Analytics.track(“quiz_started”,{mobile});
-go(V.QUIZ);
+return;
 }
+Analytics.track("quiz_started",{mobile});
+go(V.QUIZ);
 };
+
 
 const handleQAnswer=val=>{
 Analytics.track(“quiz_question_answered”,{question_id:q.id,answer:val});
